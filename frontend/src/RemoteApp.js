@@ -1,0 +1,61 @@
+import React, { Suspense, lazy } from "react";
+import { Provider } from "react-redux";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  ToastProvider,
+  KPrimeReactProvider,
+  QueryProvider,
+} from "kdesigns/KContext";
+import { KProgressSpinner } from "kdesigns/KDesign";
+import "kdesigns/kDesignStyle";
+import "./lib/setupAxios";
+import { store } from "./store";
+import AuthInitializer from "./components/AuthInitializer";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const DashboardLayout = lazy(() => import("./pages/DashboardLayout"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+
+function AppRoutes() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex align-items-center justify-content-center min-h-screen">
+          <KProgressSpinner />
+        </div>
+      }
+    >
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
+        </Route>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </Suspense>
+  );
+}
+
+export default function RemoteApp() {
+  return (
+    <Provider store={store}>
+      <KPrimeReactProvider>
+        <QueryProvider>
+          <ToastProvider>
+            <AuthInitializer>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+            </AuthInitializer>
+          </ToastProvider>
+        </QueryProvider>
+      </KPrimeReactProvider>
+    </Provider>
+  );
+}

@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: fabnet-mysql-dev
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-fabnet_root}
+      MYSQL_DATABASE: fabnet_dev
+      MYSQL_USER: fabnet
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-fabnet_dev}
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-fabnet_root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fabnet-backend-dev
+    env_file:
+      - ./backend/.env.development
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  kdesigns:
+    build:
+      context: ./kdesigns
+      dockerfile: Dockerfile.compose
+    container_name: fabnet-kdesigns-dev
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: http://localhost:3000/api
+        REACT_APP_KDESIGNS_REMOTE_ENTRY_URL: http://localhost:8080/remoteEntry.js
+    container_name: fabnet-frontend-dev
+    ports:
+      - "3001:8080"
+
+volumes:
+  mysql_dev_data:

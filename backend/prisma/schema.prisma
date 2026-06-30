@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SUPPLIER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum ServiceType {
+  DESIGN
+  MANUFACTURING
+  INSPECTION
+  LOGISTICS
+  PACKAGING
+  CERTIFICATION
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Char(36)
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  phone     String?  @db.VarChar(50)
+  password  String   @db.VarChar(255)
+  role      UserRole @default(SUPPLIER)
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  supplierProfile SupplierProfile?
+
+  @@map("users")
+}
+
+model SupplierProfile {
+  id            String   @id @default(uuid()) @db.Char(36)
+  userId        String   @unique @map("user_id") @db.Char(36)
+  companyName   String   @map("company_name") @db.VarChar(255)
+  contactPerson String   @map("contact_person") @db.VarChar(255)
+  phone         String?  @db.VarChar(50)
+  address       String?  @db.Text
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services SupplierService[]
+
+  @@map("supplier_profiles")
+}
+
+model SupplierService {
+  id          String      @id @default(uuid()) @db.Char(36)
+  supplierId  String      @map("supplier_id") @db.Char(36)
+  serviceType ServiceType @map("service_type")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, serviceType])
+  @@map("supplier_services")
+}
+
+model Client {
+  id            String   @id @default(uuid()) @db.Char(36)
+  companyName   String   @map("company_name") @db.VarChar(255)
+  contactPerson String   @map("contact_person") @db.VarChar(255)
+  email         String   @unique @db.VarChar(255)
+  phone         String?  @db.VarChar(50)
+  address       String?  @db.Text
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("clients")
+}
