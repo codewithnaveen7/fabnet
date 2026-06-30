@@ -1,0 +1,23 @@
+.k-table{
+    & .p-datatable-wrapper{
+        & .p-datatable-table{
+            position: relative;
+            & thead{
+                & tr{
+                    & th{
+                        position: sticky;
+                        top: 0;
+                        z-index: 1;
+                    }
+                }
+            }
+            & tfoot{
+               & tr{
+                   & td,th{
+                        padding: 1rem;
+                    }
+                }
+            }
+        }
+    }
+}

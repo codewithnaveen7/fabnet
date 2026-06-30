@@ -1,0 +1,32 @@
+.p-sidebar.customSideBar {
+  background-color: var(--primary-color);
+  top: $header-height; /* Assuming $header-height is a SASS variable */
+  transition: width 0.3s ease-in-out;
+  max-width: 250px;
+
+  .p-sidebar-content {
+    padding-left: 0;
+  }
+
+  &.semi-collapsed {
+    width: 50px !important;
+  
+
+
+  
+  }
+
+  .p-sidebar-close {
+    display: none !important;
+  }
+}
+
+.p-sidebar-mask.p-component-overlay {
+  pointer-events: all;
+  background-color: transparent;
+}
+
+.p-sidebar-mask.p-component-overlay-enter {
+  animation: none;
+  width: max-content;
+}

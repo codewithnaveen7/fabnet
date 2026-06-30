@@ -1,0 +1,64 @@
+@import "../abstracts/mixins";
+.custom-datatable {
+  @include flex-column-scroll();
+
+  .p-datatable {
+    @include override-prime-tables-css();
+    &.k-transaction-table__body .p-paginator.k-custom-paginator {
+
+      padding: 14px 0px;
+
+      .p-paginator-pages {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .p-dropdown .p-inputtext{
+        padding: 4px 6px ;
+      }
+
+    }
+  }
+  
+}
+.custom-treetable {
+  @include flex-column-scroll();
+
+  .p-treetable {
+    @include override-prime-tables-css();
+    .p-treetable-header{
+      background-color: var(--primary-light);
+    }
+  }
+}
+
+.k-transaction-table__header {
+  width: 100%;
+  padding: 0.5%;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  color: var(--primary-color);
+
+  .k-transaction-table__child {
+    font-size: 12px;
+    cursor: pointer;
+  }
+}
+
+.divider-1 {
+  @include generate-divider(1);
+}
+.divider-2 {
+  @include generate-divider(2);
+}
+.divider-3 {
+  @include generate-divider(3);
+}
+.divider-4 {
+  @include generate-divider(4);
+}
+.divider-5 {
+  @include generate-divider(5);
+}

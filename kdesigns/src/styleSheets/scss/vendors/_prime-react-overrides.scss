@@ -1,0 +1,116 @@
+// Toggle Override
+.toggle-override {
+  .p-button {
+    border-color: #ced4da;
+    font-size: var(--font-size-base-sm);
+    font-style: normal;
+    line-height: var(--line-height-xs);
+    color: var(--bluegray-800);
+    padding: var(--Spacing-3, 0.57143rem) var(--Spacing-4, 0.85714rem);
+
+    &-label {
+      font-weight: var(--font-weight-semibold) !important;
+    }
+
+    &:hover {
+      border-color: #ced4da !important;
+      background-color: var(--surface-0) !important;
+    }
+
+    &.p-highlight {
+      background: var(--primary-color) !important;
+      color: var(--surface-0) !important;
+    }
+  }
+}
+
+// DataTable Override (IngestedDocumentList)
+.datatable-override {
+  .p-datatable {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    .p-paginator {
+      padding: 0.2rem 0rem 0.2rem 0rem;
+      .p-paginator-pages {
+        height: auto;
+      }
+      .p-dropdown {
+        height: auto;
+      }
+    }
+    &-tbody {
+      > tr {
+        > td {
+          padding-left: 1.5rem !important;
+          line-height: var(--line-height-sm);
+        }
+      }
+    }
+
+    &-wrapper {
+      // overflow: unset;
+    }
+
+    &-thead {
+      z-index: 3;
+      background-color: #f5f5f5 !important;
+
+      tr:first-of-type {
+        > th {
+          padding-top: 0.8rem !important;
+        }
+      }
+
+      tr {
+        > th {
+          padding: 0rem 0rem 0.5rem 1.5rem !important;
+          background-color: transparent;
+          min-width: 150px;
+
+          .p-column-filter {
+            .p-dropdown,
+            .p-calendar {
+              min-width: 130px !important;
+            }
+
+            .p-calendar {
+              .p-inputtext {
+                border-right-width: 0;
+              }
+
+              svg {
+                color: var(--text-color-secondary);
+              }
+            }
+          }
+
+          .p-column-header-content {
+            color: var(--bluegray-900);
+            font-size: var(--font-size-md-lg);
+            font-style: normal;
+            font-weight: var(--font-weight-medium);
+            line-height: var(--line-height-xs);
+
+            svg {
+              width: 0.69021rem;
+              height: 0.73807rem;
+              color: var(--surface-900);
+            }
+          }
+
+          .p-button-icon-only {
+            padding: 0.3rem;
+            background-color: white !important;
+            border: 1px solid #ced4da;
+            border-left-width: 0;
+            color: black;
+          }
+
+          .p-hidden-space {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
+}

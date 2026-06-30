@@ -1,0 +1,49 @@
+.k-button {
+  &:global(.p-button) {
+    border: 1px solid #ced4da;
+    color: #fff;
+    background: var(--primary-color);
+
+    &:enabled:hover {
+      background: var(--primary-color);
+      border: 1px solid #ced4da;
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+
+    &:global(-link) {
+      color: var(--primary-color) !important;
+      background-color: initial;
+
+      &:enabled:hover {
+        background: initial !important;
+        border: initial !important;
+        color: var(--primary-color);
+      }
+    }
+
+    &:global(-outlined) {
+      border: 1px solid var(--primary-color) !important;
+      color: var(--primary-color) !important;
+      background-color: transparent !important;
+
+      &:hover {
+        color: inherit !important;
+        background-color: inherit !important;
+        border: 1px solid var(--primary-color) !important;
+      }
+    }
+
+    &:global(-secondary) {
+      background: #64748B;
+
+      &:hover {
+        background: #64748B !important;
+      }
+    }
+
+
+  }
+}

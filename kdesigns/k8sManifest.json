@@ -1,0 +1,8 @@
+{
+  "cluster_namespace": "${namespace}",
+  "pod_replicas": "1",
+  "docker_image": "035592488042.dkr.ecr.us-west-2.amazonaws.com/kdesigns:latest",
+  "ssl_cert_arn": "${ssl_arn}",
+  "skip": "false",
+  "manifests": ""
+}

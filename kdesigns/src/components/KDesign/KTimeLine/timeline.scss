@@ -1,0 +1,89 @@
+.p-timeline-container {
+    .addFirstLeg {
+        min-height: 40px;
+        display: block;
+        text-align: center;
+        padding: .2rem;
+
+        &:hover {
+            background-color: var(--primary-light);
+
+            .pi-plus-circle {
+                display: initial;
+            }
+        }
+
+        .pi-plus-circle {
+            font-size: 1.5rem !important;
+            cursor: pointer;
+            display: none;
+
+
+
+        }
+    }
+
+    .p-timeline {
+
+
+        &-event {
+            min-height: 70px;
+
+            &:last-child {
+                min-height: 70px;
+
+            }
+
+            .edit {
+                display: none;
+                position: absolute;
+                right: .5rem;
+                top: .5rem;
+                cursor: pointer;
+                color: var(--primary-color);
+            }
+
+            &-opposite {
+                padding-bottom: 1rem !important;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            &-content {
+                padding-bottom: 1rem !important;
+            }
+
+            &-separator {
+                .pi-plus-circle {
+                    font-size: 1.5rem !important;
+                    display: none;
+                    position: absolute;
+                    top: 50%;
+                    cursor: pointer;
+
+                    &:hover {
+                        display: initial;
+                    }
+                }
+            }
+
+            &.hovered {
+                background-color: var(--primary-light);
+
+                .edit {
+                    display: initial;
+                }
+
+                .p-timeline-event-separator.showAddBtn {
+                    .pi-plus-circle {
+                        display: initial;
+                    }
+                }
+
+
+            }
+
+        }
+    }
+}

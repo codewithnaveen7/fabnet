@@ -1,0 +1,9 @@
+.p-radiobutton {
+    &-box {
+
+        &.p-highlight {
+            border-color: var(--primary-color) !important;
+            background-color: var(--primary-color) !important;
+        }
+    }
+}

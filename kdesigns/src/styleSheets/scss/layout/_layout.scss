@@ -1,0 +1,23 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: var(--primary-light);
+  }
+  
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-y: auto;
+    transition: margin-left .3s ease-in-out;
+   
+    &.shifted250 {
+      margin-left: 250px !important;
+    }
+    &.shifted50 {
+      margin-left: 50px !important;
+    }
+    
+  }

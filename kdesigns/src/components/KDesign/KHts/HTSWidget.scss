@@ -1,0 +1,246 @@
+/*************************************************************************
+ *
+ * KLEARNOW CONFIDENTIAL
+ * __________________
+ *
+ *  Copyright (c) 2018 - 2020 KLEARNOW Corporation.
+ *  All Rights Reserved.
+ *
+ * NOTICE:  All information contained herein is, and remains
+ * the property of KLEARNOW Corporation and its suppliers,
+ * if any.  The intellectual and technical concepts contained
+ * herein are proprietary to KLEARNOW Corporation
+ * and its suppliers and may be covered by U.S. and Foreign Patents,
+ * patents in process, and are protected by trade secret or copyright law.
+ * Dissemination of this information or reproduction of this material
+ * is strictly forbidden unless prior written permission is obtained
+ * from KLEARNOW Corporation.
+ */
+
+$light-blue: #ebf2fb;
+$dark-blue: #007bff;
+.lihtslength2 .htslength4 {
+  color: blue !important;
+}
+.legendholder {
+  display: block;
+  float: right;
+  padding: 5px;
+  div {
+    display: none;
+    width: 250px;
+    position: absolute;
+    margin-left: -250px;
+    padding: 3px;
+    border: 3px outset;
+    background-color: white;
+  }
+  &:hover div {
+    display: block;
+  }
+}
+
+.htsnode {
+  border-bottom: 1px solid #f0f0f0;
+}
+.htsnode.selected {
+  background-color: #dffeff;
+  .showtariffs {
+    background-color: #dffeff;
+  }
+}
+.htsnode.nochildren {
+  color: black;
+}
+.hts-popup-container-es {
+  min-width: 200px;
+  padding: 10px;
+  .firstcol {
+    min-width: 120px;
+    width: 120px;
+    max-width: 120px;
+    overflow: hidden;
+  }
+  .secondcol {
+    min-width: 280px;
+    width: 280px;
+    max-width: 280px;
+  }
+
+}
+.htsnode:focus {
+  background-color: #f1fcfc;
+}
+.htsiconclose {
+  float: right;
+  padding: 4px !important;
+  margin: 4px !important;
+}
+.htsicon {
+  transition: transform 100ms !important;
+  transform: rotate(0deg);
+  padding: 4px !important;
+  background-color: inherit !important;
+}
+.htsicon.rotated {
+  transform: rotate(90deg);
+}
+.htsicon.greencheck {
+  color: green;
+}
+.info-icon-es {
+  position: absolute;
+  right: 0;
+  bottom: 27px;
+  font-size: 12px !important;
+}
+
+.ui.header.htsheader {
+  color: white !important;
+}
+
+.hts-popup-container-es {
+  .showtariffs {
+    padding-left: 200px;
+    margin-left: -32px;
+    border-top: 1px solid #f0f0f0;
+    width: calc(100% + 32px);
+  }
+  .htsnode {
+    text-decoration: none;
+  }
+  .htsnode:hover {
+    text-decoration: underline;
+  }
+  .highlightedrow:not(.selected):not(.nochildren) {
+    background-color: #f9f9f9;
+  }
+  .highlightedrow:focus {
+    background-color: #dffff5;
+    .showtariffs {
+      background-color: #f1fcfc;
+    }
+  }
+  & > * {
+    width: 100%;
+  }
+  background-color: white !important;
+  position: absolute;
+  z-index: 20;
+  color: black;
+  td {
+    vertical-align: top;
+  }
+  left: -1% !important;
+  min-width: 30vw;
+  padding: 8px;
+  border-radius: 1px;
+  -webkit-box-shadow: 0px 4px 9px 2px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0px 4px 9px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 4px 9px 2px rgba(0, 0, 0, 0.3);
+  min-height: 200px;
+  overflow: auto;
+  max-height: 30vh;
+
+  li {
+    display: block;
+    width: 100%;
+    a {
+      width: 100%;
+      display: block;
+    }
+  }
+}
+
+.ui.header.htsheader {
+  padding-top: 5px !important;
+  margin-bottom: 20px;
+  border-bottom: 1px solid white;
+  width: 171px;
+}
+
+.hts-popup-list {
+  .selection {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 3px;
+    border-left: 0.6px dashed white !important;
+    border: 1px solid transparent;
+    cursor: pointer;
+    &.last {
+      margin-left: 40px;
+    }
+
+    &:hover {
+      border: 1px solid white !important;
+      background: rgb(33, 100, 202);
+    }
+  }
+}
+
+.hts-description {
+  position: relative;
+  font-size: 13px;
+  margin: 0 10px;
+  max-width: 60%;
+}
+
+.horizontal-line {
+  font-weight: 50;
+  opacity: 0.5;
+  margin: 0 5px 0 -10px;
+  display: inline-block;
+  color: white;
+
+  &.hide {
+    color: rgb(113, 168, 242);
+    width: 50px;
+  }
+}
+
+.additional-number {
+  background-color: rgb(33, 100, 202);
+  border-radius: 6px;
+  padding: 1px;
+  max-height: 23px;
+}
+
+.selectedRow {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 3px;
+  background-color: rgb(113, 168, 242);
+  border: 1px solid #fff;
+  margin-left: -15px;
+
+  &.last {
+    margin-left: 25px !important;
+    margin-left: -15px;
+  }
+}
+
+.hts-check-icon {
+  margin: 0 26px 0 -5px !important;
+  color: white;
+  background-color: #86c83f !important;
+  border-radius: 20px;
+  padding: 0px;
+  height: 18px !important;
+  width: 18px !important;
+
+  &:before {
+    border: 1px solid white;
+    border-radius: 20px;
+    padding: 1.8px;
+  }
+}
+
+.haschildren{
+  color: blue !important;
+}

@@ -1,0 +1,15 @@
+@import "primereact/resources/primereact.min.css";
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+@import "../../../node_modules/primereact/resources/themes/lara-light-teal/theme.css";
+@import "./abstracts/_variables.scss";
+@import "./abstracts/_mixins.scss";
+@import "./base/_base.scss";
+@import "./base/_typography.scss";
+@import "./layout/_layout.scss";
+@import "./layout/_sidebar.scss";
+@import "./layout/_menu.scss";
+@import "./layout/_header.scss";
+@import "./layout/_footer.scss";
+@import "./components/index.scss";
+@import "./vendors/_prime-react-overrides.scss";

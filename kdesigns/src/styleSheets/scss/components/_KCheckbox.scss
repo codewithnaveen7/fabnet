@@ -1,0 +1,7 @@
+.p-checkbox .p-checkbox-box.p-highlight {
+    border-color: var(--primary-color);
+  background-color: var(--primary-color);
+    &:hover{
+    border-color: var(--primary-color);
+    }
+}

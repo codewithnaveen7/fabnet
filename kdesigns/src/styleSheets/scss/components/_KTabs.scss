@@ -1,0 +1,32 @@
+.p-tabview.KTabs {
+
+  .p-tag {
+    background: var(--primary-color);
+    padding: 0 0.4rem;
+  }
+
+  .p-tabview {
+    &-nav {
+      &-container {
+        width: max-content;
+      }
+
+      &-link {
+        background: none !important;
+        padding: 1rem !important;
+      }
+    }
+
+    &-title {
+      color: var(--primary-color);
+    }
+
+    &-ink-bar {
+      background-color: var(--primary-color);
+    }
+
+    &-panels {
+      padding: 0.5rem;
+    }
+  }
+}

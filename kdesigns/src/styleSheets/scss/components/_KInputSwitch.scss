@@ -1,0 +1,17 @@
+.p-selectbutton .p-button {
+  color: #495057;
+  border: 1px solid var(--primary-color);
+  &.p-highlight {
+    background: var(--cyan-100);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+
+    &:hover {
+      background: var(--cyan-100);
+      color: var(--primary-color);
+    }
+  }
+  &:not(.p-disabled):not(.p-highlight):hover {
+    border-color: var(--primary-color);
+  }
+}
