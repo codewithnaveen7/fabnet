@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const corsOptions = require('./config/cors');
 const authRoutes = require('./routes/authRoutes');
+const supplierRoutes = require('./routes/supplierRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 function createApp() {
@@ -18,6 +19,7 @@ function createApp() {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use('/api/suppliers', supplierRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

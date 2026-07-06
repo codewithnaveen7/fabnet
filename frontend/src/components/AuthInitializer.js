@@ -11,13 +11,15 @@ import { unwrapApiData } from "../utils/apiResponse";
 
 export default function AuthInitializer({ children }) {
   const dispatch = useDispatch();
-  const { token } = useSelector(selectAuth);
+  const { token, user } = useSelector(selectAuth);
 
-  const { data, isLoading, isError } = useQueryGet({
+  const needsHydration = Boolean(token) && !user;
+
+  const { data, isLoading, isError, isFetched } = useQueryGet({
     eventMessage: {},
     eventType: "FABNET_GET_ME",
     url: "/auth/me",
-    enabled: Boolean(token),
+    enabled: needsHydration,
     queryKey: ["auth", "me"],
   });
 
@@ -26,21 +28,34 @@ export default function AuthInitializer({ children }) {
       dispatch(setLoading(false));
       return;
     }
-    dispatch(setLoading(isLoading));
-  }, [dispatch, isLoading, token]);
 
-  useEffect(() => {
-    const user = unwrapApiData(data);
+    // Fresh login already has user — skip /auth/me
     if (user) {
-      dispatch(setUser(user));
+      dispatch(setLoading(false));
+      return;
     }
-  }, [data, dispatch]);
 
-  useEffect(() => {
-    if (isError && token) {
+    if (isLoading) {
+      dispatch(setLoading(true));
+      return;
+    }
+
+    if (isError) {
+      dispatch(logout());
+      return;
+    }
+
+    if (!isFetched) {
+      return;
+    }
+
+    const fetchedUser = unwrapApiData(data);
+    if (fetchedUser) {
+      dispatch(setUser(fetchedUser));
+    } else {
       dispatch(logout());
     }
-  }, [dispatch, isError, token]);
+  }, [data, dispatch, isError, isFetched, isLoading, token, user]);
 
   return children;
 }

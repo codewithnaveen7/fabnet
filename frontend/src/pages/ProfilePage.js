@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch, useSelector } from "react-redux";
 import { KButton, KDivider, KInputText, KPassword } from "kdesigns/KDesign";
 import { useMutationPost } from "kdesigns/KHooks";
 import "kdesigns/kDesignStyle";
 import FormField from "../components/FormField";
+import ValidatedField, { fieldClassName } from "../components/ValidatedField";
 import { selectRole, selectUser, setUser } from "../store/authSlice";
+import { changePasswordSchema, profileSchema } from "../validation/schemas";
 import { unwrapApiData } from "../utils/apiResponse";
 import "../styles/dashboard.css";
 
@@ -20,32 +24,43 @@ export default function ProfilePage() {
     mutationKey: ["fabnet-password"],
   });
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [profileError, setProfileError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [profileSubmitError, setProfileSubmitError] = useState("");
+  const [passwordSubmitError, setPasswordSubmitError] = useState("");
   const [profileSuccess, setProfileSuccess] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  useEffect(() => {
-    setName(user?.name || "");
-    setEmail(user?.email || "");
-    setPhone(user?.phone || "");
-    setCompanyName(user?.supplierProfile?.companyName || "");
-  }, [user]);
+  const profileForm = useForm({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { name: "", email: "", phone: "" },
+    mode: "onTouched",
+  });
 
-  const handleProfileSave = async (event) => {
-    event.preventDefault();
-    setProfileError("");
+  const passwordForm = useForm({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+    mode: "onTouched",
+  });
+
+  useEffect(() => {
+    if (user) {
+      profileForm.reset({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user, profileForm]);
+
+  const onProfileSubmit = async (values) => {
+    setProfileSubmitError("");
     setProfileSuccess("");
     try {
       const result = await updateProfile(
-        { name, email, phone },
+        values,
         "FABNET_UPDATE_PROFILE",
         "/auth/profile",
       );
@@ -55,30 +70,23 @@ export default function ProfilePage() {
         setProfileSuccess("Profile updated successfully.");
       }
     } catch {
-      setProfileError("Unable to update profile.");
+      setProfileSubmitError("Unable to update profile.");
     }
   };
 
-  const handlePasswordSave = async (event) => {
-    event.preventDefault();
-    setPasswordError("");
+  const onPasswordSubmit = async ({ currentPassword, newPassword }) => {
+    setPasswordSubmitError("");
     setPasswordSuccess("");
-    if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match.");
-      return;
-    }
     try {
       await changePassword(
         { currentPassword, newPassword },
         "FABNET_CHANGE_PASSWORD",
         "/auth/password",
       );
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      passwordForm.reset();
       setPasswordSuccess("Password changed successfully.");
     } catch {
-      setPasswordError("Unable to change password.");
+      setPasswordSubmitError("Unable to change password.");
     }
   };
 
@@ -96,43 +104,63 @@ export default function ProfilePage() {
               <h3>Personal information</h3>
             </div>
             <div className="fn-panel-body">
-              <form onSubmit={handleProfileSave} className="p-fluid">
-                <FormField label="Full name" htmlFor="name">
-                  <KInputText
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </FormField>
-                <FormField label="Email address" htmlFor="profileEmail">
-                  <KInputText
-                    id="profileEmail"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </FormField>
-                <FormField label="Phone number" htmlFor="phone">
-                  <KInputText
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </FormField>
+              <form
+                onSubmit={profileForm.handleSubmit(onProfileSubmit)}
+                noValidate
+                className="p-fluid"
+              >
+                <ValidatedField
+                  name="name"
+                  control={profileForm.control}
+                  label="Full name"
+                  htmlFor="name"
+                  render={(field, fieldState) => (
+                    <KInputText
+                      id="name"
+                      {...field}
+                      className={fieldClassName(fieldState)}
+                    />
+                  )}
+                />
+                <ValidatedField
+                  name="email"
+                  control={profileForm.control}
+                  label="Email address"
+                  htmlFor="profileEmail"
+                  render={(field, fieldState) => (
+                    <KInputText
+                      id="profileEmail"
+                      type="email"
+                      {...field}
+                      className={fieldClassName(fieldState)}
+                    />
+                  )}
+                />
+                <ValidatedField
+                  name="phone"
+                  control={profileForm.control}
+                  label="Phone number"
+                  htmlFor="phone"
+                  render={(field, fieldState) => (
+                    <KInputText
+                      id="phone"
+                      {...field}
+                      className={fieldClassName(fieldState)}
+                    />
+                  )}
+                />
                 {role === "SUPPLIER" ? (
                   <FormField label="Company" htmlFor="company">
                     <KInputText
                       id="company"
-                      value={companyName}
+                      value={user?.supplierProfile?.companyName || ""}
                       disabled
                       readOnly
                     />
                   </FormField>
                 ) : null}
-                {profileError ? (
-                  <small className="p-error block mb-2">{profileError}</small>
+                {profileSubmitError ? (
+                  <small className="p-error block mb-2">{profileSubmitError}</small>
                 ) : null}
                 {profileSuccess ? (
                   <small className="text-green-600 block mb-2">{profileSuccess}</small>
@@ -149,39 +177,67 @@ export default function ProfilePage() {
               <h3>Security</h3>
             </div>
             <div className="fn-panel-body">
-              <form onSubmit={handlePasswordSave} className="p-fluid">
-                <FormField label="Current password" htmlFor="currentPassword">
-                  <KPassword
-                    id="currentPassword"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    feedback={false}
-                    toggleMask
-                    required
-                  />
-                </FormField>
+              <form
+                onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}
+                noValidate
+                className="p-fluid"
+              >
+                <ValidatedField
+                  name="currentPassword"
+                  control={passwordForm.control}
+                  label="Current password"
+                  htmlFor="currentPassword"
+                  render={(field, fieldState) => (
+                    <KPassword
+                      id="currentPassword"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      inputRef={field.ref}
+                      feedback={false}
+                      toggleMask
+                      className={fieldClassName(fieldState)}
+                    />
+                  )}
+                />
                 <KDivider />
-                <FormField label="New password" htmlFor="newPassword">
-                  <KPassword
-                    id="newPassword"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    toggleMask
-                    required
-                  />
-                </FormField>
-                <FormField label="Confirm new password" htmlFor="confirmPassword">
-                  <KPassword
-                    id="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    feedback={false}
-                    toggleMask
-                    required
-                  />
-                </FormField>
-                {passwordError ? (
-                  <small className="p-error block mb-2">{passwordError}</small>
+                <ValidatedField
+                  name="newPassword"
+                  control={passwordForm.control}
+                  label="New password"
+                  htmlFor="newPassword"
+                  render={(field, fieldState) => (
+                    <KPassword
+                      id="newPassword"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      inputRef={field.ref}
+                      toggleMask
+                      className={fieldClassName(fieldState)}
+                    />
+                  )}
+                />
+                <ValidatedField
+                  name="confirmPassword"
+                  control={passwordForm.control}
+                  label="Confirm new password"
+                  htmlFor="confirmPassword"
+                  render={(field, fieldState) => (
+                    <KPassword
+                      id="confirmPassword"
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      inputRef={field.ref}
+                      feedback={false}
+                      toggleMask
+                      className={fieldClassName(fieldState)}
+                    />
+                  )}
+                />
+                {passwordSubmitError ? (
+                  <small className="p-error block mb-2">{passwordSubmitError}</small>
                 ) : null}
                 {passwordSuccess ? (
                   <small className="text-green-600 block mb-2">{passwordSuccess}</small>

@@ -166,6 +166,8 @@ Typical setup:
 | `https://api.fabnetsystems.com` | `localhost:3000` (backend) |
 | `https://cdn.fabnetsystems.com/kdesigns/` | `localhost:8080` (kdesigns) |
 
+**phpMyAdmin (optional, internal only):** `http://127.0.0.1:8081` — prod compose mein sirf localhost par bind hai. Remote: `ssh -L 8081:127.0.0.1:8081 user@server` phir browser mein http://localhost:8081
+
 Example Nginx snippet (backend):
 
 ```nginx

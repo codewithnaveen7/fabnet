@@ -12,11 +12,14 @@ import "./lib/setupAxios";
 import { store } from "./store";
 import AuthInitializer from "./components/AuthInitializer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RequireRole from "./components/RequireRole";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const DashboardLayout = lazy(() => import("./pages/DashboardLayout"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const SuppliersPage = lazy(() => import("./pages/SuppliersPage"));
+const AddSupplierPage = lazy(() => import("./pages/AddSupplierPage"));
 
 function AppRoutes() {
   return (
@@ -33,6 +36,10 @@ function AppRoutes() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route element={<RequireRole roles={["ADMIN"]} />}>
+              <Route path="suppliers" element={<SuppliersPage />} />
+              <Route path="suppliers/add" element={<AddSupplierPage />} />
+            </Route>
           </Route>
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

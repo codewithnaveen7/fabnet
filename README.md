@@ -14,6 +14,7 @@ docker compose up --build
 | Frontend | http://localhost:3001 |
 | Backend API | http://localhost:3000/api |
 | kdesigns remote | http://localhost:8080/remoteEntry.js |
+| phpMyAdmin | http://localhost:8081 |
 
 ### Seed accounts
 
@@ -21,6 +22,8 @@ docker compose up --build
 |------|-------|----------|
 | Admin | admin@fabnetsystems.com | Admin@123 |
 | Supplier | supplier@fabnetsystems.com | Supplier@123 |
+
+**phpMyAdmin login (Docker dev):** http://localhost:8081 — user `root` / password from `.env` → `MYSQL_ROOT_PASSWORD` (default `fabnet_root`), database `fabnet_dev`.
 
 ## Local development (no Docker)
 

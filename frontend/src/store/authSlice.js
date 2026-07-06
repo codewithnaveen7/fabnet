@@ -42,4 +42,10 @@ export const selectUser = (state) => state.auth.user;
 export const selectRole = (state) => state.auth.user?.role;
 export const selectAuthLoading = (state) => state.auth.loading;
 
+/** True while token exists but user profile is not loaded yet (e.g. after reload). */
+export const selectAuthBootstrapping = (state) => {
+  const { token, user, loading } = state.auth;
+  return Boolean(token) && (loading || !user);
+};
+
 export default authSlice.reducer;

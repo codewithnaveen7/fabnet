@@ -42,9 +42,8 @@ function buildNavSections(role, navigate) {
           {
             label: "Suppliers",
             icon: "pi pi-users",
-            disabled: true,
-            badge: "Soon",
-            command: () => {},
+            path: "/dashboard/suppliers",
+            command: () => navigate("/dashboard/suppliers"),
           },
         ],
       },
