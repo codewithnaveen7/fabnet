@@ -30,16 +30,36 @@ const createValidators = [
   body('services.*').optional().isIn(SERVICE_TYPES),
 ];
 
+const bulkValidators = [
+  body('suppliers').isArray({ min: 1, max: 100 }),
+  body('suppliers.*.name').optional().trim(),
+  body('suppliers.*.email').optional().trim(),
+  body('suppliers.*.password').optional().trim(),
+  body('suppliers.*.phone').optional().trim(),
+  body('suppliers.*.companyName').optional().trim(),
+  body('suppliers.*.contactPerson').optional().trim(),
+  body('suppliers.*.address').optional().trim(),
+  body('suppliers.*.services').optional().isArray(),
+  body('suppliers.*.services.*').optional().isIn(SERVICE_TYPES),
+];
+
 router.use(parseEventBody);
 router.use(authenticate, requireRole('ADMIN'));
 
 router.get('/', asyncHandler(supplierController.listSuppliers));
 router.post('/', asyncHandler(supplierController.listSuppliers));
+router.get('/template', asyncHandler(supplierController.downloadTemplate));
 router.post(
   '/create',
   createValidators,
   validate,
   asyncHandler(supplierController.createSupplier),
+);
+router.post(
+  '/bulk',
+  bulkValidators,
+  validate,
+  asyncHandler(supplierController.bulkCreateSuppliers),
 );
 
 module.exports = router;

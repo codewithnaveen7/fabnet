@@ -47,3 +47,35 @@ export const changePasswordSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+export const bulkSupplierRowSchema = z.object({
+  row: z.number().optional(),
+  name: z.string().trim().min(1, "Name is required"),
+  email: z.string().trim().min(1, "Email is required").email("Invalid email"),
+  password: z
+    .string()
+    .trim()
+    .optional()
+    .transform((val) => val || "Supplier@123")
+    .pipe(z.string().min(8, "Password must be at least 8 characters")),
+  phone: z.string().trim().optional().or(z.literal("")),
+  companyName: z.string().trim().min(1, "Company name is required"),
+  contactPerson: z.string().trim().min(1, "Contact person is required"),
+  address: z.string().trim().optional().or(z.literal("")),
+  services: z.array(z.enum(SERVICE_TYPES)).default([]),
+});
+
+export function validateBulkSupplierRows(rows) {
+  return rows.map((row) => {
+    const result = bulkSupplierRowSchema.safeParse(row);
+    if (result.success) {
+      return { row: row.row, valid: true, data: result.data, errors: [] };
+    }
+    return {
+      row: row.row,
+      valid: false,
+      data: row,
+      errors: result.error.issues.map((issue) => issue.message),
+    };
+  });
+}

@@ -58,11 +58,20 @@ export default function SuppliersPage() {
             View and manage supplier partners on the platform.
           </p>
         </div>
-        <KButton
-          label="Add supplier"
-          icon="pi pi-plus"
-          onClick={() => navigate("/dashboard/suppliers/add")}
-        />
+        <div className="fn-page-actions">
+          <KButton
+            label="Bulk upload"
+            icon="pi pi-upload"
+            severity="secondary"
+            outlined
+            onClick={() => navigate("/dashboard/suppliers/bulk-upload")}
+          />
+          <KButton
+            label="Add supplier"
+            icon="pi pi-plus"
+            onClick={() => navigate("/dashboard/suppliers/add")}
+          />
+        </div>
       </div>
 
       <div className="fn-panel">
