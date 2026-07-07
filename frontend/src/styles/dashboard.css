@@ -366,6 +366,17 @@
   color: var(--fn-text);
 }
 
+.fn-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fn-table-actions .p-button {
+  width: max-content;
+  flex: 0 0 auto;
+}
+
 .fn-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

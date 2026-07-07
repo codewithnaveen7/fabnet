@@ -21,6 +21,7 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SuppliersPage = lazy(() => import("./pages/SuppliersPage"));
 const AddSupplierPage = lazy(() => import("./pages/AddSupplierPage"));
 const BulkUploadSuppliersPage = lazy(() => import("./pages/BulkUploadSuppliersPage"));
+const EditSupplierPage = lazy(() => import("./pages/EditSupplierPage"));
 
 function AppRoutes() {
   return (
@@ -41,6 +42,7 @@ function AppRoutes() {
               <Route path="suppliers" element={<SuppliersPage />} />
               <Route path="suppliers/add" element={<AddSupplierPage />} />
               <Route path="suppliers/bulk-upload" element={<BulkUploadSuppliersPage />} />
+              <Route path="suppliers/:id/edit" element={<EditSupplierPage />} />
             </Route>
           </Route>
         </Route>

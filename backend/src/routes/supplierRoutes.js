@@ -30,6 +30,20 @@ const createValidators = [
   body('services.*').optional().isIn(SERVICE_TYPES),
 ];
 
+const updateValidators = [
+  body('id').notEmpty(),
+  body('name').trim().notEmpty(),
+  body('email').isEmail().normalizeEmail(),
+  body('password').optional().isLength({ min: 8 }),
+  body('phone').optional().trim(),
+  body('companyName').trim().notEmpty(),
+  body('contactPerson').trim().notEmpty(),
+  body('address').optional().trim(),
+  body('status').optional().isIn(['ACTIVE', 'INACTIVE']),
+  body('services').optional().isArray(),
+  body('services.*').optional().isIn(SERVICE_TYPES),
+];
+
 const bulkValidators = [
   body('suppliers').isArray({ min: 1, max: 100 }),
   body('suppliers.*.name').optional().trim(),
@@ -49,12 +63,20 @@ router.use(authenticate, requireRole('ADMIN'));
 router.get('/', asyncHandler(supplierController.listSuppliers));
 router.post('/', asyncHandler(supplierController.listSuppliers));
 router.get('/template', asyncHandler(supplierController.downloadTemplate));
+router.post('/get', [body('id').notEmpty()], validate, asyncHandler(supplierController.getSupplier));
 router.post(
   '/create',
   createValidators,
   validate,
   asyncHandler(supplierController.createSupplier),
 );
+router.post(
+  '/update',
+  updateValidators,
+  validate,
+  asyncHandler(supplierController.updateSupplier),
+);
+router.post('/delete', [body('id').notEmpty()], validate, asyncHandler(supplierController.deleteSupplier));
 router.post(
   '/bulk',
   bulkValidators,

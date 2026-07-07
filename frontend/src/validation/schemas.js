@@ -28,6 +28,25 @@ export const addSupplierSchema = z.object({
   services: z.array(z.enum(SERVICE_TYPES)).default([]),
 });
 
+export const editSupplierSchema = z.object({
+  name: z.string().trim().min(1, "Full name is required").max(255),
+  email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),
+  password: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || val.length >= 8, {
+      message: "Password must be at least 8 characters",
+    }),
+  phone: z.string().trim().optional().or(z.literal("")),
+  companyName: z.string().trim().min(1, "Company name is required").max(255),
+  contactPerson: z.string().trim().min(1, "Contact person is required").max(255),
+  address: z.string().trim().optional().or(z.literal("")),
+  services: z.array(z.enum(SERVICE_TYPES)).default([]),
+  status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+});
+
 export const profileSchema = z.object({
   name: z.string().trim().min(1, "Full name is required").max(255),
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),

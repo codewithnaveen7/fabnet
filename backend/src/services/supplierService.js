@@ -171,4 +171,96 @@ async function bulkCreateSuppliers(rows) {
   };
 }
 
-module.exports = { listSuppliers, createSupplier, bulkCreateSuppliers };
+async function getSupplierById(id) {
+  const supplier = await prisma.user.findFirst({
+    where: { id, role: 'SUPPLIER' },
+    select: supplierListSelect,
+  });
+  if (!supplier) {
+    throw ApiError.notFound('Supplier not found');
+  }
+  return supplier;
+}
+
+async function updateSupplier(id, {
+  name,
+  email,
+  password,
+  phone,
+  companyName,
+  contactPerson,
+  address,
+  services = [],
+  status,
+}) {
+  const supplier = await getSupplierById(id);
+
+  if (email && email !== supplier.email) {
+    const existing = await prisma.user.findFirst({
+      where: { email, NOT: { id } },
+    });
+    if (existing) {
+      throw ApiError.conflict('Email is already in use');
+    }
+  }
+
+  const userData = {
+    name,
+    email,
+    phone: phone || null,
+  };
+  if (status) {
+    userData.status = status;
+  }
+  if (password?.trim()) {
+    userData.password = await hashPassword(password);
+  }
+
+  return prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id },
+      data: userData,
+    });
+
+    const profile = await tx.supplierProfile.update({
+      where: { userId: id },
+      data: {
+        companyName,
+        contactPerson,
+        phone: phone || null,
+        address: address || null,
+        ...(status ? { status } : {}),
+      },
+    });
+
+    await tx.supplierService.deleteMany({ where: { supplierId: profile.id } });
+    if (services.length) {
+      await tx.supplierService.createMany({
+        data: services.map((serviceType) => ({
+          supplierId: profile.id,
+          serviceType,
+        })),
+      });
+    }
+
+    return tx.user.findUnique({
+      where: { id },
+      select: supplierListSelect,
+    });
+  });
+}
+
+async function deleteSupplier(id) {
+  await getSupplierById(id);
+  await prisma.user.delete({ where: { id } });
+  return { message: 'Supplier deleted successfully' };
+}
+
+module.exports = {
+  listSuppliers,
+  createSupplier,
+  bulkCreateSuppliers,
+  getSupplierById,
+  updateSupplier,
+  deleteSupplier,
+};
