@@ -6,19 +6,147 @@ Yeh document batata hai ki **production server** par kya-kya change karna hai au
 
 ## Dev vs Prod — Quick Summary
 
-| | Local (Dev) | Server (Prod) |
-|---|-------------|---------------|
-| **Command** | `docker compose up --build` | `docker compose -f docker-compose.prod.yml up --build -d` |
-| **Compose file** | `docker-compose.yml` | `docker-compose.prod.yml` |
-| **Root env** | `.env` | `.env` (strong secrets) |
-| **Backend env** | `backend/.env.development` | `backend/.env.production` |
-| **Frontend URLs** | `docker-compose.yml` build args | Root `.env` + rebuild frontend |
-| **DB seed** | Yes (auto) | No |
-| **MySQL port** | 3306 exposed | Internal only |
+| | Local (Dev) | Server (Prod — recommended) | Server (Prod — git build) |
+|---|-------------|----------------------------|---------------------------|
+| **Command** | `docker compose up --build` | `./scripts/server-pull-up.sh` | `docker compose -f docker-compose.prod.yml up --build -d` |
+| **Compose file** | `docker-compose.yml` | `docker-compose.prod.pull.yml` | `docker-compose.prod.yml` |
+| **Code on server** | Full repo | **Not required** | Full repo (git clone) |
+| **Root env** | `.env` | `.env` (strong secrets) | `.env` (strong secrets) |
+| **Backend env** | `backend/.env.development` | `backend/.env.production` | `backend/.env.production` |
+| **App images** | Built locally | **Pulled from Docker Hub** | Built on server |
+| **DB seed** | Yes (auto) | No | No |
+| **MySQL port** | 3306 exposed | Internal only | Internal only |
 
 ---
 
-## Server par pehli baar setup
+## Production deploy — Docker Hub (recommended)
+
+Server par **git clone ya build ki zaroorat nahi**. Images local machine se Docker Hub par push hoti hain; server sirf pull karta hai.
+
+### Architecture
+
+```
+Local laptop  →  docker build + push  →  Docker Hub (naveen2202)
+Production server  →  docker pull + compose up  →  running containers
+```
+
+**Docker Hub images:**
+
+| Service | Image |
+|---------|-------|
+| backend | `naveen2202/fabnet-backend:latest` |
+| frontend | `naveen2202/fabnet-frontend:latest` |
+| kdesigns | `naveen2202/fabnet-kdesigns:latest` |
+
+MySQL aur phpMyAdmin public images se aate hain (`mysql:8`, `phpmyadmin:5`).
+
+---
+
+### Step 1 — Local: build & push (har release par)
+
+```bash
+cd fabnet
+docker login
+cp .env.example .env   # if needed — set REACT_APP_* production URLs
+./scripts/docker-build-push.sh
+```
+
+Optional version tag:
+
+```bash
+IMAGE_TAG=v1.0.0 ./scripts/docker-build-push.sh
+```
+
+> Frontend URLs **build time** par image mein bake hoti hain. URL change = naya build + push.
+
+---
+
+### Step 2 — Server: sirf 3 files copy karo
+
+Server par `/opt/fabnet/` (ya apna path):
+
+```
+/opt/fabnet/
+├── docker-compose.prod.pull.yml
+├── .env
+└── backend/.env.production
+```
+
+**SCP example:**
+
+```bash
+scp docker-compose.prod.pull.yml user@server:/opt/fabnet/
+scp .env user@server:/opt/fabnet/
+scp backend/.env.production user@server:/opt/fabnet/backend/
+scp scripts/server-pull-up.sh user@server:/opt/fabnet/scripts/
+```
+
+---
+
+### Step 3 — Server root `.env`
+
+```env
+MYSQL_ROOT_PASSWORD=STRONG_ROOT_PASSWORD_HERE
+MYSQL_DATABASE=fabnet
+MYSQL_USER=fabnet
+MYSQL_PASSWORD=STRONG_DB_PASSWORD_HERE
+
+DOCKER_REGISTRY=naveen2202
+IMAGE_TAG=latest
+```
+
+---
+
+### Step 4 — Server `backend/.env.production`
+
+```env
+NODE_ENV=production
+PORT=3000
+DATABASE_URL=mysql://fabnet:STRONG_DB_PASSWORD_HERE@mysql:3306/fabnet
+JWT_SECRET=YOUR_VERY_LONG_RANDOM_SECRET_MIN_32_CHARS
+JWT_EXPIRES_IN=8h
+CORS_ORIGIN=https://panel.fabnetsystems.com
+LOG_LEVEL=info
+BCRYPT_ROUNDS=12
+```
+
+---
+
+### Step 5 — Server: first start
+
+```bash
+cd /opt/fabnet
+docker login
+chmod +x scripts/server-pull-up.sh
+./scripts/server-pull-up.sh
+```
+
+Ya manually:
+
+```bash
+docker compose -f docker-compose.prod.pull.yml pull
+docker compose -f docker-compose.prod.pull.yml up -d
+```
+
+---
+
+### Step 6 — Har update par (server)
+
+Local par naya code push karo (`./scripts/docker-build-push.sh`), phir server par:
+
+```bash
+cd /opt/fabnet
+docker compose -f docker-compose.prod.pull.yml pull
+docker compose -f docker-compose.prod.pull.yml up -d
+```
+
+Backend start par Prisma migrate auto chalti hai (`docker-entrypoint.sh`).
+
+---
+
+## Alternative: Server par git clone + build
+
+Agar Docker Hub use nahi karna, purana flow ab bhi kaam karta hai.
 
 ### Step 1 — Code server par lao
 
@@ -124,9 +252,10 @@ Har change ke liye **kaunsi file** edit karni hai:
 | DB password | `.env` → `MYSQL_PASSWORD` + `DATABASE_URL` | Same |
 | DB name | `.env` → `MYSQL_DATABASE` + `DATABASE_URL` | Same |
 | JWT secret | `backend/.env.production` → `JWT_SECRET` | `docker compose restart backend` |
-| API domain | Root `.env` → `REACT_APP_API_BASE_URL` | `docker compose build frontend && up -d frontend` |
-| kdesigns CDN URL | Root `.env` → `REACT_APP_KDESIGNS_REMOTE_ENTRY_URL` | Rebuild frontend + kdesigns |
+| API domain | Rebuild frontend image locally + push | `docker-build-push.sh` then server `pull` |
+| kdesigns CDN URL | Rebuild frontend image locally + push | Same |
 | CORS (frontend domain) | `backend/.env.production` → `CORS_ORIGIN` | `restart backend` |
+| New app version | Local `./scripts/docker-build-push.sh` | Server `pull` + `up -d` |
 | SSL / reverse proxy | Nginx/Caddy server config (outside repo) | Reload proxy |
 
 ---
@@ -185,7 +314,28 @@ server {
 
 ---
 
-## Common commands (server)
+## Common commands (server — Docker Hub pull)
+
+```bash
+# Status
+docker compose -f docker-compose.prod.pull.yml ps
+
+# Logs
+docker compose -f docker-compose.prod.pull.yml logs -f backend
+docker compose -f docker-compose.prod.pull.yml logs -f frontend
+
+# Restart single service
+docker compose -f docker-compose.prod.pull.yml restart backend
+
+# Stop everything
+docker compose -f docker-compose.prod.pull.yml down
+
+# Deploy update (after new images pushed to Docker Hub)
+docker compose -f docker-compose.prod.pull.yml pull
+docker compose -f docker-compose.prod.pull.yml up -d
+```
+
+## Common commands (server — git build alternative)
 
 ```bash
 # Status

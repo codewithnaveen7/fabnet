@@ -42,6 +42,19 @@ cd frontend && npm install && npm start   # :3002
 
 See **[SERVER_SETUP.md](./SERVER_SETUP.md)** for full server deployment guide — env files, DB credentials, nginx, checklist.
 
+**Recommended (Docker Hub pull — no git/build on server):**
+
+```bash
+# Local: build & push images
+docker login
+./scripts/docker-build-push.sh
+
+# Server: copy docker-compose.prod.pull.yml, .env, backend/.env.production
+./scripts/server-pull-up.sh
+```
+
+**Alternative (build on server):**
+
 ```bash
 cp .env.example .env   # set strong secrets
 # Edit backend/.env.production
