@@ -16,12 +16,17 @@ docker compose up --build
 | kdesigns remote | http://localhost:8080/remoteEntry.js |
 | phpMyAdmin | http://localhost:8081 |
 
-### Seed accounts
+### Seed accounts (development only)
 
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@fabnetsystems.com | Admin@123 |
 | Supplier | supplier@fabnetsystems.com | Supplier@123 |
+
+> **Production:** Default users are created automatically on **first deploy** (empty database). If login fails, reset the admin password:
+> ```bash
+> ./scripts/reset-admin-password.sh
+> ```
 
 **phpMyAdmin login (Docker dev):** http://localhost:8081 — user `root` / password from `.env` → `MYSQL_ROOT_PASSWORD` (default `fabnet_root`), database `fabnet_dev`.
 
@@ -42,14 +47,20 @@ cd frontend && npm install && npm start   # :3002
 
 See **[SERVER_SETUP.md](./SERVER_SETUP.md)** for full server deployment guide — env files, DB credentials, nginx, checklist.
 
-**Recommended (Docker Hub pull — no git/build on server):**
+**Recommended (Docker Hub pull — nginx + SSL included):**
 
 ```bash
-# Local: build & push images
+# Local: build & push images (includes fabnet-proxy)
 docker login
 ./scripts/docker-build-push.sh
 
-# Server: copy docker-compose.prod.pull.yml, .env, backend/.env.production
+# Server: copy compose + .env files + scripts, then:
+./scripts/server-setup.sh
+```
+
+**Updates only (server):**
+
+```bash
 ./scripts/server-pull-up.sh
 ```
 

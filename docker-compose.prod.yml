@@ -39,8 +39,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env.production
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     depends_on:
       mysql:
         condition: service_healthy
@@ -51,8 +51,8 @@ services:
       dockerfile: Dockerfile.compose.prod
     container_name: fabnet-kdesigns-prod
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
 
   frontend:
     build:
@@ -63,8 +63,39 @@ services:
         REACT_APP_KDESIGNS_REMOTE_ENTRY_URL: ${REACT_APP_KDESIGNS_REMOTE_ENTRY_URL}
     container_name: fabnet-frontend-prod
     restart: unless-stopped
+    expose:
+      - "8080"
+
+  proxy:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: ${DOCKER_REGISTRY:-naveen2202}/fabnet-proxy:${IMAGE_TAG:-latest}
+    container_name: fabnet-proxy-prod
+    restart: unless-stopped
     ports:
-      - "3001:8080"
+      - "80:80"
+      - "443:443"
+    environment:
+      PANEL_DOMAIN: ${PANEL_DOMAIN:-panel.fabnetsystems.com}
+      API_DOMAIN: ${API_DOMAIN:-api.fabnetsystems.com}
+      CDN_DOMAIN: ${CDN_DOMAIN:-cdn.fabnetsystems.com}
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - backend
+      - frontend
+      - kdesigns
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: fabnet-certbot
+    profiles:
+      - certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
 
 volumes:
   mysql_prod_data:

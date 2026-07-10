@@ -5,6 +5,15 @@ const prisma = new PrismaClient();
 const ROUNDS = 10;
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    const existingUsers = await prisma.user.count();
+    if (existingUsers > 0) {
+      console.log('Production: users already exist, skipping seed.');
+      return;
+    }
+    console.log('Production: empty database, creating default users...');
+  }
+
   const adminPassword = await bcrypt.hash('Admin@123', ROUNDS);
   const supplierPassword = await bcrypt.hash('Supplier@123', ROUNDS);
 

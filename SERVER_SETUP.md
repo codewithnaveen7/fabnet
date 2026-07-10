@@ -8,7 +8,7 @@ Yeh document batata hai ki **production server** par kya-kya change karna hai au
 
 | | Local (Dev) | Server (Prod — recommended) | Server (Prod — git build) |
 |---|-------------|----------------------------|---------------------------|
-| **Command** | `docker compose up --build` | `./scripts/server-pull-up.sh` | `docker compose -f docker-compose.prod.yml up --build -d` |
+| **Command** | `docker compose up --build` | `./scripts/server-setup.sh` | `./scripts/server-setup.sh` (with `COMPOSE_FILE=docker-compose.prod.yml`) |
 | **Compose file** | `docker-compose.yml` | `docker-compose.prod.pull.yml` | `docker-compose.prod.yml` |
 | **Code on server** | Full repo | **Not required** | Full repo (git clone) |
 | **Root env** | `.env` | `.env` (strong secrets) | `.env` (strong secrets) |
@@ -37,8 +37,9 @@ Production server  →  docker pull + compose up  →  running containers
 | backend | `naveen2202/fabnet-backend:latest` |
 | frontend | `naveen2202/fabnet-frontend:latest` |
 | kdesigns | `naveen2202/fabnet-kdesigns:latest` |
+| proxy (nginx + SSL) | `naveen2202/fabnet-proxy:latest` |
 
-MySQL aur phpMyAdmin public images se aate hain (`mysql:8`, `phpmyadmin:5`).
+MySQL, phpMyAdmin, and Certbot use public images (`mysql:8`, `phpmyadmin:5`, `certbot/certbot`).
 
 ---
 
@@ -51,6 +52,8 @@ cp .env.example .env   # if needed — set REACT_APP_* production URLs
 ./scripts/docker-build-push.sh
 ```
 
+> **Mac (Apple Silicon) → Linux VPS:** Images must be built for `linux/amd64`. The script does this by default via `docker buildx`. If you previously pushed from a Mac without buildx, the server will fail with `no matching manifest for linux/amd64` — rebuild and push again.
+
 Optional version tag:
 
 ```bash
@@ -61,7 +64,7 @@ IMAGE_TAG=v1.0.0 ./scripts/docker-build-push.sh
 
 ---
 
-### Step 2 — Server: sirf 3 files copy karo
+### Step 2 — Server: copy config files
 
 Server par `/opt/fabnet/` (ya apna path):
 
@@ -69,7 +72,11 @@ Server par `/opt/fabnet/` (ya apna path):
 /opt/fabnet/
 ├── docker-compose.prod.pull.yml
 ├── .env
-└── backend/.env.production
+├── backend/.env.production
+└── scripts/
+    ├── server-setup.sh
+    ├── server-ssl-init.sh
+    └── server-pull-up.sh
 ```
 
 **SCP example:**
@@ -78,8 +85,10 @@ Server par `/opt/fabnet/` (ya apna path):
 scp docker-compose.prod.pull.yml user@server:/opt/fabnet/
 scp .env user@server:/opt/fabnet/
 scp backend/.env.production user@server:/opt/fabnet/backend/
-scp scripts/server-pull-up.sh user@server:/opt/fabnet/scripts/
+scp scripts/server-setup.sh scripts/server-ssl-init.sh scripts/server-pull-up.sh scripts/reset-admin-password.sh user@server:/opt/fabnet/scripts/
 ```
+
+> DNS A records (`panel`, `api`, `cdn`) server IP par point karo **before** SSL step.
 
 ---
 
@@ -93,7 +102,15 @@ MYSQL_PASSWORD=STRONG_DB_PASSWORD_HERE
 
 DOCKER_REGISTRY=naveen2202
 IMAGE_TAG=latest
+
+# Domains + SSL (nginx proxy container handles routing + HTTPS)
+PANEL_DOMAIN=panel.fabnetsystems.com
+API_DOMAIN=api.fabnetsystems.com
+CDN_DOMAIN=cdn.fabnetsystems.com
+LETSENCRYPT_EMAIL=you@fabnetsystems.com
 ```
+
+> Special characters in `MYSQL_PASSWORD` must be URL-encoded in `DATABASE_URL` (e.g. `$` → `%24`, `@` → `%40`).
 
 ---
 
@@ -112,20 +129,33 @@ BCRYPT_ROUNDS=12
 
 ---
 
-### Step 5 — Server: first start
+### Step 5 — Server: one-command setup (pull + nginx + SSL)
 
 ```bash
 cd /opt/fabnet
 docker login
-chmod +x scripts/server-pull-up.sh
-./scripts/server-pull-up.sh
+chmod +x scripts/*.sh
+
+# Ensure ports 80/443 are free (stop host nginx if installed: systemctl stop nginx)
+./scripts/server-setup.sh
 ```
 
-Ya manually:
+This script:
+1. Pulls all images (including `fabnet-proxy`)
+2. Starts MySQL, backend, frontend, kdesigns, nginx proxy
+3. Requests Let's Encrypt certs (if `LETSENCRYPT_EMAIL` is set)
+4. Enables HTTPS on all three domains
+
+HTTP only (skip SSL):
 
 ```bash
-docker compose -f docker-compose.prod.pull.yml pull
-docker compose -f docker-compose.prod.pull.yml up -d
+SKIP_SSL=1 ./scripts/server-setup.sh
+```
+
+SSL later:
+
+```bash
+./scripts/server-ssl-init.sh
 ```
 
 ---
@@ -256,7 +286,7 @@ Har change ke liye **kaunsi file** edit karni hai:
 | kdesigns CDN URL | Rebuild frontend image locally + push | Same |
 | CORS (frontend domain) | `backend/.env.production` → `CORS_ORIGIN` | `restart backend` |
 | New app version | Local `./scripts/docker-build-push.sh` | Server `pull` + `up -d` |
-| SSL / reverse proxy | Nginx/Caddy server config (outside repo) | Reload proxy |
+| SSL / reverse proxy | `.env` → `LETSENCRYPT_EMAIL` + domains | `./scripts/server-ssl-init.sh` |
 
 ---
 
@@ -285,31 +315,22 @@ Har change ke liye **kaunsi file** edit karni hai:
 
 ---
 
-## Nginx / reverse proxy (server par, repo ke bahar)
+## Nginx / HTTPS (Docker proxy — automatic)
 
-Typical setup:
+Nginx reverse proxy runs as the **`proxy`** container. No host nginx install needed.
 
-| Public URL | Proxy to |
-|------------|----------|
-| `https://panel.fabnetsystems.com` | `localhost:3001` (frontend / React app) |
-| `https://api.fabnetsystems.com` | `localhost:3000` (backend) |
-| `https://cdn.fabnetsystems.com/kdesigns/` | `localhost:8080` (kdesigns) |
+| Public URL | Internal service |
+|------------|------------------|
+| `https://panel.fabnetsystems.com` | `frontend:8080` |
+| `https://api.fabnetsystems.com` | `backend:3000` |
+| `https://cdn.fabnetsystems.com/kdesigns/` | `kdesigns:8080` |
 
-**phpMyAdmin (optional, internal only):** `http://127.0.0.1:8081` — prod compose mein sirf localhost par bind hai. Remote: `ssh -L 8081:127.0.0.1:8081 user@server` phir browser mein http://localhost:8081
+**phpMyAdmin (internal only):** `http://127.0.0.1:8081` — SSH tunnel: `ssh -L 8081:127.0.0.1:8081 user@server`
 
-Example Nginx snippet (backend):
+**SSL renewal** (add to crontab, e.g. weekly):
 
-```nginx
-server {
-    listen 443 ssl;
-    server_name api.fabnetsystems.com;
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
+```bash
+0 3 * * 1 cd /opt/fabnet && ./scripts/server-ssl-renew.sh >> /var/log/fabnet-ssl-renew.log 2>&1
 ```
 
 ---
@@ -317,12 +338,18 @@ server {
 ## Common commands (server — Docker Hub pull)
 
 ```bash
+# First-time setup (pull + SSL)
+./scripts/server-setup.sh
+
+# Deploy update (after new images pushed to Docker Hub)
+./scripts/server-pull-up.sh
+
 # Status
 docker compose -f docker-compose.prod.pull.yml ps
 
 # Logs
 docker compose -f docker-compose.prod.pull.yml logs -f backend
-docker compose -f docker-compose.prod.pull.yml logs -f frontend
+docker compose -f docker-compose.prod.pull.yml logs -f proxy
 
 # Restart single service
 docker compose -f docker-compose.prod.pull.yml restart backend
@@ -330,9 +357,8 @@ docker compose -f docker-compose.prod.pull.yml restart backend
 # Stop everything
 docker compose -f docker-compose.prod.pull.yml down
 
-# Deploy update (after new images pushed to Docker Hub)
-docker compose -f docker-compose.prod.pull.yml pull
-docker compose -f docker-compose.prod.pull.yml up -d
+# SSL only (if setup was HTTP-first)
+./scripts/server-ssl-init.sh
 ```
 
 ## Common commands (server — git build alternative)
@@ -393,18 +419,29 @@ See [README.md](./README.md) for local run commands.
 | White screen | kdesigns URL browser-accessible hai? Hard refresh `Cmd+Shift+R` |
 | CORS error | `backend/.env.production` → `CORS_ORIGIN` frontend domain se match karo |
 | DB connection failed | `DATABASE_URL` user/pass/database `.env` se match karo |
-| Login 401 | Backend logs check karo; seed prod mein nahi chalti — manually user banao |
+| Login 401 | No admin user in DB, or wrong password — run `./scripts/reset-admin-password.sh` |
 | Frontend old API URL | Frontend rebuild karo (env build-time bake hoti hai) |
 
 ---
 
-## Default seed users (development only)
+## Default seed users
 
-Production par yeh automatically create **nahi** hote. Dev mein:
+On **first production deploy** (empty DB), seed runs automatically and creates:
 
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@fabnetsystems.com | Admin@123 |
 | Supplier | supplier@fabnetsystems.com | Supplier@123 |
 
-Production par pehla admin manually create karo ya ek baar dev seed script carefully run karo.
+If admin login fails (DB already had users, or password was changed), reset on server:
+
+```bash
+cd /opt/fabnet
+./scripts/reset-admin-password.sh
+```
+
+Or manually:
+
+```bash
+docker compose -f docker-compose.prod.pull.yml exec backend node prisma/reset-admin-password.js
+```

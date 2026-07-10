@@ -38,6 +38,7 @@ Thumbs.db
 
 # Docker local overrides
 docker-compose.override.yml
+certbot/
 
 # Prisma
 backend/prisma/*.db
