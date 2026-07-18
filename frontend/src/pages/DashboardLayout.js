@@ -40,6 +40,12 @@ function buildNavSections(role, navigate) {
             command: () => {},
           },
           {
+            label: "Services",
+            icon: "pi pi-list",
+            path: "/dashboard/services",
+            command: () => navigate("/dashboard/services"),
+          },
+          {
             label: "Suppliers",
             icon: "pi pi-users",
             path: "/dashboard/suppliers",

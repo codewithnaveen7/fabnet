@@ -24,6 +24,21 @@ const config = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   logLevel: process.env.LOG_LEVEL || (nodeEnv === 'production' ? 'info' : 'debug'),
   bcryptRounds: Number(process.env.BCRYPT_ROUNDS || 12),
+  s3: {
+    endpoint: process.env.S3_ENDPOINT || '',
+    region: process.env.S3_REGION || 'ewr1',
+    bucket: process.env.S3_BUCKET || '',
+    accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+    publicBaseUrl: process.env.S3_PUBLIC_BASE_URL || '',
+  },
 };
+
+config.s3.isConfigured = Boolean(
+  config.s3.endpoint &&
+    config.s3.bucket &&
+    config.s3.accessKeyId &&
+    config.s3.secretAccessKey
+);
 
 module.exports = config;

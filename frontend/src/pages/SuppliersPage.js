@@ -76,7 +76,11 @@ export default function SuppliersPage() {
       email: user.email,
       phone: user.phone || user.supplierProfile?.phone || "—",
       services:
-        user.supplierProfile?.services?.map((s) => s.serviceType).join(", ") || "—",
+        user.supplierProfile?.services
+          ?.map((s) => s.service?.name)
+          .filter(Boolean)
+          .join(", ") || "—",
+      itarRegistered: user.supplierProfile?.itarRegistered ? "Yes" : "No",
       status: user.status,
     }));
   }, [data]);
@@ -154,6 +158,7 @@ export default function SuppliersPage() {
               <KColumn field="email" header="Email" sortable />
               <KColumn field="phone" header="Phone" />
               <KColumn field="services" header="Services" />
+              <KColumn field="itarRegistered" header="ITAR" style={{ width: "80px" }} />
               <KColumn
                 field="status"
                 header="Account"

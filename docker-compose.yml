@@ -3,7 +3,8 @@ services:
     image: mysql:8
     container_name: fabnet-mysql-dev
     ports:
-      - "3306:3306"
+      # Avoid clash with local mysqld (:3306) / other compose stacks (:3307)
+      - "3308:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-fabnet_root}
       MYSQL_DATABASE: fabnet_dev
@@ -22,7 +23,7 @@ services:
     image: phpmyadmin:5
     container_name: fabnet-phpmyadmin-dev
     ports:
-      - "8081:80"
+      - "8083:80"
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
@@ -50,7 +51,7 @@ services:
       dockerfile: Dockerfile.compose
     container_name: fabnet-kdesigns-dev
     ports:
-      - "8080:8080"
+      - "8085:8080"
 
   frontend:
     build:
@@ -58,7 +59,7 @@ services:
       dockerfile: Dockerfile
       args:
         REACT_APP_API_BASE_URL: http://localhost:3000/api
-        REACT_APP_KDESIGNS_REMOTE_ENTRY_URL: http://localhost:8080/remoteEntry.js
+        REACT_APP_KDESIGNS_REMOTE_ENTRY_URL: http://localhost:8085/remoteEntry.js
     container_name: fabnet-frontend-dev
     ports:
       - "3001:8080"

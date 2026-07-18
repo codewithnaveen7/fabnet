@@ -1,6 +1,11 @@
 const prisma = require('../lib/prisma');
 const ApiError = require('../utils/ApiError');
 const { hashPassword } = require('../utils/password');
+const { assertActiveServiceIds, resolveServiceIdsByNames } = require('./serviceService');
+const { resolveTagIdsByNames } = require('./capabilityTagService');
+const { buildObjectKey, uploadObject, deleteObject, getPresignedGetUrl } = require('../lib/s3');
+
+const CERT_TYPES = ['AS9100', 'ISO9001'];
 
 const supplierListSelect = {
   id: true,
@@ -16,11 +21,194 @@ const supplierListSelect = {
       contactPerson: true,
       phone: true,
       address: true,
+      tradeLicenseNumber: true,
+      countryOfRegistration: true,
+      websiteUrl: true,
+      comments: true,
+      itarRegistered: true,
       status: true,
-      services: { select: { serviceType: true } },
+      services: {
+        select: {
+          serviceId: true,
+          service: { select: { id: true, name: true, status: true } },
+        },
+      },
+      capabilityTags: {
+        select: {
+          tagId: true,
+          tag: { select: { id: true, name: true } },
+        },
+      },
+      certifications: {
+        select: {
+          id: true,
+          type: true,
+          certified: true,
+          expiryDate: true,
+          fileName: true,
+          fileKey: true,
+          mimeType: true,
+          fileSize: true,
+        },
+      },
+      documents: {
+        select: {
+          id: true,
+          docType: true,
+          fileName: true,
+          fileKey: true,
+          mimeType: true,
+          fileSize: true,
+          uploadedAt: true,
+        },
+      },
     },
   },
 };
+
+function firstFile(files, field) {
+  const list = files?.[field];
+  return Array.isArray(list) && list.length ? list[0] : null;
+}
+
+function fieldFiles(files, field) {
+  const list = files?.[field];
+  if (Array.isArray(list)) return list.filter(Boolean);
+  return list ? [list] : [];
+}
+
+async function syncServices(tx, profileId, serviceIds) {
+  const ids = await assertActiveServiceIds(serviceIds);
+  await tx.supplierService.deleteMany({ where: { supplierId: profileId } });
+  if (ids.length) {
+    await tx.supplierService.createMany({
+      data: ids.map((serviceId) => ({ supplierId: profileId, serviceId })),
+    });
+  }
+}
+
+async function syncCapabilityTags(tx, profileId, tagNames) {
+  const names = Array.isArray(tagNames) ? tagNames : [];
+  const tagIds = await resolveTagIdsByNames(names);
+  await tx.supplierCapabilityTag.deleteMany({ where: { supplierId: profileId } });
+  if (tagIds.length) {
+    await tx.supplierCapabilityTag.createMany({
+      data: tagIds.map((tagId) => ({ supplierId: profileId, tagId })),
+    });
+  }
+}
+
+async function uploadCertFile(supplierId, type, file) {
+  if (!file) return null;
+  const key = buildObjectKey(supplierId, 'cert', type, file.originalname);
+  await uploadObject({
+    key,
+    body: file.buffer,
+    contentType: file.mimetype,
+  });
+  return {
+    fileName: file.originalname,
+    fileKey: key,
+    mimeType: file.mimetype,
+    fileSize: file.size,
+  };
+}
+
+async function syncCertifications(tx, profileId, certifications = [], files = {}) {
+  const byType = new Map();
+  for (const item of certifications) {
+    if (!item?.type || !CERT_TYPES.includes(item.type)) continue;
+    byType.set(item.type, item);
+  }
+
+  for (const type of CERT_TYPES) {
+    const item = byType.get(type) || { type, certified: false };
+    const certified = Boolean(item.certified);
+    const expiryDate = certified && item.expiryDate ? new Date(item.expiryDate) : null;
+    const file = firstFile(files, `cert_${type}`);
+
+    const existing = await tx.supplierCertification.findUnique({
+      where: { supplierId_type: { supplierId: profileId, type } },
+    });
+
+    let fileMeta = {};
+    if (!certified) {
+      if (existing?.fileKey) await deleteObject(existing.fileKey);
+      fileMeta = { fileName: null, fileKey: null, mimeType: null, fileSize: null };
+    } else if (file) {
+      if (existing?.fileKey) await deleteObject(existing.fileKey);
+      fileMeta = await uploadCertFile(profileId, type, file);
+    }
+
+    const data = {
+      certified,
+      expiryDate: certified ? expiryDate : null,
+      ...fileMeta,
+    };
+
+    if (existing) {
+      await tx.supplierCertification.update({
+        where: { id: existing.id },
+        data,
+      });
+    } else {
+      await tx.supplierCertification.create({
+        data: {
+          supplierId: profileId,
+          type,
+          ...data,
+        },
+      });
+    }
+  }
+}
+
+async function removeDocumentsByIds(tx, profileId, ids = []) {
+  const uniqueIds = [...new Set((Array.isArray(ids) ? ids : []).filter(Boolean))];
+  if (!uniqueIds.length) return;
+
+  const docs = await tx.supplierDocument.findMany({
+    where: { supplierId: profileId, id: { in: uniqueIds } },
+  });
+  for (const doc of docs) {
+    if (doc.fileKey) {
+      try {
+        await deleteObject(doc.fileKey);
+      } catch {
+        // Continue removing DB row even if S3 object is already gone
+      }
+    }
+    await tx.supplierDocument.delete({ where: { id: doc.id } });
+  }
+}
+
+async function appendDocumentFiles(tx, profileId, docType, fileList = []) {
+  for (const file of fileList) {
+    if (!file) continue;
+    const key = buildObjectKey(profileId, 'doc', docType, file.originalname);
+    await uploadObject({
+      key,
+      body: file.buffer,
+      contentType: file.mimetype,
+    });
+    await tx.supplierDocument.create({
+      data: {
+        supplierId: profileId,
+        docType,
+        fileName: file.originalname,
+        fileKey: key,
+        mimeType: file.mimetype,
+        fileSize: file.size,
+      },
+    });
+  }
+}
+
+async function syncDocuments(tx, profileId, files = {}, { removeDocumentIds = [] } = {}) {
+  await removeDocumentsByIds(tx, profileId, removeDocumentIds);
+  await appendDocumentFiles(tx, profileId, 'CAPABILITY_PROFILE', fieldFiles(files, 'capabilityProfile'));
+  await appendDocumentFiles(tx, profileId, 'BROCHURE', fieldFiles(files, 'brochures'));
+}
 
 async function listSuppliers() {
   return prisma.user.findMany({
@@ -30,24 +218,34 @@ async function listSuppliers() {
   });
 }
 
-async function createSupplier({
-  name,
-  email,
-  password,
-  phone,
-  companyName,
-  contactPerson,
-  address,
-  services = [],
-}) {
+async function createSupplier(payload, files = {}) {
+  const {
+    name,
+    email,
+    password,
+    phone,
+    companyName,
+    contactPerson,
+    address,
+    tradeLicenseNumber,
+    countryOfRegistration,
+    websiteUrl,
+    comments,
+    services = [],
+    itarRegistered = false,
+    capabilityTags = [],
+    certifications = [],
+  } = payload;
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     throw ApiError.conflict('Email is already in use');
   }
 
+  await assertActiveServiceIds(services);
   const hashedPassword = await hashPassword(password);
 
-  return prisma.$transaction(async (tx) => {
+  const userId = await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
         name,
@@ -66,23 +264,29 @@ async function createSupplier({
         contactPerson,
         phone: phone || null,
         address: address || null,
+        tradeLicenseNumber: tradeLicenseNumber || null,
+        countryOfRegistration: countryOfRegistration || null,
+        websiteUrl: websiteUrl || null,
+        comments: comments || null,
+        itarRegistered: Boolean(itarRegistered),
         status: 'ACTIVE',
       },
     });
 
-    if (services.length) {
-      await tx.supplierService.createMany({
-        data: services.map((serviceType) => ({
-          supplierId: profile.id,
-          serviceType,
-        })),
-      });
-    }
+    await syncServices(tx, profile.id, services);
+    await syncCapabilityTags(tx, profile.id, capabilityTags);
+    return { userId: user.id, profileId: profile.id };
+  });
 
-    return tx.user.findUnique({
-      where: { id: user.id },
-      select: supplierListSelect,
-    });
+  // Files / certs after profile exists (S3 needs profile id)
+  await prisma.$transaction(async (tx) => {
+    await syncCertifications(tx, userId.profileId, certifications, files);
+    await syncDocuments(tx, userId.profileId, files);
+  });
+
+  return prisma.user.findUnique({
+    where: { id: userId.userId },
+    select: supplierListSelect,
   });
 }
 
@@ -147,7 +351,9 @@ async function bulkCreateSuppliers(rows) {
     seenEmails.add(normalized.email);
 
     try {
-      const supplier = await createSupplier(normalized);
+      // CSV services are names; resolve to IDs
+      const serviceIds = await resolveServiceIdsByNames(normalized.services);
+      const supplier = await createSupplier({ ...normalized, services: serviceIds });
       created.push({
         row: rowNumber,
         email: supplier.email,
@@ -182,17 +388,27 @@ async function getSupplierById(id) {
   return supplier;
 }
 
-async function updateSupplier(id, {
-  name,
-  email,
-  password,
-  phone,
-  companyName,
-  contactPerson,
-  address,
-  services = [],
-  status,
-}) {
+async function updateSupplier(id, payload, files = {}) {
+  const {
+    name,
+    email,
+    password,
+    phone,
+    companyName,
+    contactPerson,
+    address,
+    tradeLicenseNumber,
+    countryOfRegistration,
+    websiteUrl,
+    comments,
+    services = [],
+    status,
+    itarRegistered,
+    capabilityTags = [],
+    certifications = [],
+    removeDocumentIds = [],
+  } = payload;
+
   const supplier = await getSupplierById(id);
 
   if (email && email !== supplier.email) {
@@ -204,56 +420,92 @@ async function updateSupplier(id, {
     }
   }
 
+  await assertActiveServiceIds(services);
+
   const userData = {
     name,
     email,
     phone: phone || null,
   };
-  if (status) {
-    userData.status = status;
-  }
+  if (status) userData.status = status;
   if (password?.trim()) {
     userData.password = await hashPassword(password);
   }
 
-  return prisma.$transaction(async (tx) => {
+  const profileId = supplier.supplierProfile.id;
+
+  await prisma.$transaction(async (tx) => {
     await tx.user.update({
       where: { id },
       data: userData,
     });
 
-    const profile = await tx.supplierProfile.update({
+    await tx.supplierProfile.update({
       where: { userId: id },
       data: {
         companyName,
         contactPerson,
         phone: phone || null,
         address: address || null,
+        tradeLicenseNumber: tradeLicenseNumber || null,
+        countryOfRegistration: countryOfRegistration || null,
+        websiteUrl: websiteUrl || null,
+        comments: comments || null,
+        ...(itarRegistered !== undefined ? { itarRegistered: Boolean(itarRegistered) } : {}),
         ...(status ? { status } : {}),
       },
     });
 
-    await tx.supplierService.deleteMany({ where: { supplierId: profile.id } });
-    if (services.length) {
-      await tx.supplierService.createMany({
-        data: services.map((serviceType) => ({
-          supplierId: profile.id,
-          serviceType,
-        })),
-      });
-    }
+    await syncServices(tx, profileId, services);
+    await syncCapabilityTags(tx, profileId, capabilityTags);
+    await syncCertifications(tx, profileId, certifications, files);
+    await syncDocuments(tx, profileId, files, { removeDocumentIds });
+  });
 
-    return tx.user.findUnique({
-      where: { id },
-      select: supplierListSelect,
-    });
+  return prisma.user.findUnique({
+    where: { id },
+    select: supplierListSelect,
   });
 }
 
 async function deleteSupplier(id) {
-  await getSupplierById(id);
+  const supplier = await getSupplierById(id);
+  const profile = supplier.supplierProfile;
+  if (profile) {
+    for (const cert of profile.certifications || []) {
+      if (cert.fileKey) await deleteObject(cert.fileKey);
+    }
+    for (const doc of profile.documents || []) {
+      if (doc.fileKey) await deleteObject(doc.fileKey);
+    }
+  }
   await prisma.user.delete({ where: { id } });
   return { message: 'Supplier deleted successfully' };
+}
+
+async function getFileDownloadUrl({ supplierId, kind, id }) {
+  const supplier = await getSupplierById(supplierId);
+  const profile = supplier.supplierProfile;
+  if (!profile) throw ApiError.notFound('Supplier profile not found');
+
+  let fileKey;
+  let fileName;
+  if (kind === 'cert') {
+    const cert = (profile.certifications || []).find((c) => c.id === id);
+    if (!cert?.fileKey) throw ApiError.notFound('Certificate file not found');
+    fileKey = cert.fileKey;
+    fileName = cert.fileName;
+  } else if (kind === 'doc') {
+    const doc = (profile.documents || []).find((d) => d.id === id);
+    if (!doc?.fileKey) throw ApiError.notFound('Document file not found');
+    fileKey = doc.fileKey;
+    fileName = doc.fileName;
+  } else {
+    throw ApiError.badRequest('kind must be cert or doc');
+  }
+
+  const { url, expiresIn } = await getPresignedGetUrl(fileKey);
+  return { url, expiresIn, fileName };
 }
 
 module.exports = {
@@ -263,4 +515,5 @@ module.exports = {
   getSupplierById,
   updateSupplier,
   deleteSupplier,
+  getFileDownloadUrl,
 };

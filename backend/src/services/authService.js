@@ -21,7 +21,15 @@ const userSelect = {
       phone: true,
       address: true,
       status: true,
-      services: { select: { id: true, serviceType: true, createdAt: true } },
+      itarRegistered: true,
+      services: {
+        select: {
+          id: true,
+          serviceId: true,
+          createdAt: true,
+          service: { select: { id: true, name: true, status: true } },
+        },
+      },
     },
   },
 };

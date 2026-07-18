@@ -13,13 +13,13 @@ async function getSupplier(req, res) {
 }
 
 async function createSupplier(req, res) {
-  const supplier = await supplierService.createSupplier(req.body);
+  const supplier = await supplierService.createSupplier(req.body, req.files || {});
   res.status(201).json({ success: true, data: supplier });
 }
 
 async function updateSupplier(req, res) {
   const { id, ...payload } = req.body;
-  const supplier = await supplierService.updateSupplier(id, payload);
+  const supplier = await supplierService.updateSupplier(id, payload, req.files || {});
   res.json({ success: true, data: supplier });
 }
 
@@ -32,6 +32,11 @@ async function deleteSupplier(req, res) {
 async function bulkCreateSuppliers(req, res) {
   const result = await supplierService.bulkCreateSuppliers(req.body.suppliers);
   res.status(201).json({ success: true, data: result });
+}
+
+async function getFileUrl(req, res) {
+  const result = await supplierService.getFileDownloadUrl(req.body);
+  res.json({ success: true, data: result });
 }
 
 function downloadTemplate(_req, res) {
@@ -48,4 +53,5 @@ module.exports = {
   deleteSupplier,
   bulkCreateSuppliers,
   downloadTemplate,
+  getFileUrl,
 };

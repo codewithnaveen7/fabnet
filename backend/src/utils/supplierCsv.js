@@ -1,12 +1,3 @@
-const VALID_SERVICES = new Set([
-  'DESIGN',
-  'MANUFACTURING',
-  'INSPECTION',
-  'LOGISTICS',
-  'PACKAGING',
-  'CERTIFICATION',
-]);
-
 const HEADER_MAP = {
   name: 'name',
   email: 'email',
@@ -26,12 +17,13 @@ function normalizeHeader(header) {
   return header.trim().toLowerCase().replace(/\s+/g, '_');
 }
 
+/** Pipe/semicolon-separated service names (e.g. Design|Manufacturing). */
 function parseServices(value) {
   if (!value || !String(value).trim()) return [];
   return String(value)
     .split(/[|;]/)
-    .map((s) => s.trim().toUpperCase())
-    .filter((s) => VALID_SERVICES.has(s));
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 function parseCsvLine(line) {
@@ -97,12 +89,11 @@ function parseSupplierCsv(text) {
 function getCsvTemplate() {
   return [
     'name,email,password,phone,company_name,contact_person,address,services',
-    'John Doe,john@example.com,Supplier@123,+1-555-0100,Acme Manufacturing,John Doe,123 Main St,DESIGN|MANUFACTURING',
+    'John Doe,john@example.com,Supplier@123,+1-555-0100,Acme Manufacturing,John Doe,123 Main St,Design|Manufacturing',
   ].join('\n');
 }
 
 module.exports = {
   parseSupplierCsv,
   getCsvTemplate,
-  VALID_SERVICES,
 };

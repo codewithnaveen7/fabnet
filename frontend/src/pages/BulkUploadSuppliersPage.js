@@ -106,7 +106,9 @@ export default function BulkUploadSuppliersPage() {
             Required columns: <code>name</code>, <code>email</code>,{" "}
             <code>company_name</code>, <code>contact_person</code>. Optional:{" "}
             <code>password</code> (default Supplier@123), <code>phone</code>,{" "}
-            <code>address</code>, <code>services</code> (pipe-separated, e.g. DESIGN|MANUFACTURING).
+            <code>address</code>, <code>services</code> (pipe-separated service{" "}
+            <em>names</em>, e.g. Design|Manufacturing). Certifications and file
+            uploads are not supported in bulk — use Add/Edit supplier.
           </p>
           <div className="fn-bulk-actions">
             <KButton

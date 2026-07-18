@@ -17,13 +17,14 @@ enum Status {
   INACTIVE
 }
 
-enum ServiceType {
-  DESIGN
-  MANUFACTURING
-  INSPECTION
-  LOGISTICS
-  PACKAGING
-  CERTIFICATION
+enum CertificationType {
+  AS9100
+  ISO9001
+}
+
+enum SupplierDocumentType {
+  CAPABILITY_PROFILE
+  BROCHURE
 }
 
 model User {
@@ -43,32 +44,112 @@ model User {
 }
 
 model SupplierProfile {
-  id            String   @id @default(uuid()) @db.Char(36)
-  userId        String   @unique @map("user_id") @db.Char(36)
-  companyName   String   @map("company_name") @db.VarChar(255)
-  contactPerson String   @map("contact_person") @db.VarChar(255)
-  phone         String?  @db.VarChar(50)
-  address       String?  @db.Text
-  status        Status   @default(ACTIVE)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id                    String   @id @default(uuid()) @db.Char(36)
+  userId                String   @unique @map("user_id") @db.Char(36)
+  companyName           String   @map("company_name") @db.VarChar(255)
+  contactPerson         String   @map("contact_person") @db.VarChar(255)
+  phone                 String?  @db.VarChar(50)
+  address               String?  @db.Text
+  tradeLicenseNumber    String?  @map("trade_license_number") @db.VarChar(255)
+  countryOfRegistration String?  @map("country_of_registration") @db.VarChar(120)
+  websiteUrl            String?  @map("website_url") @db.VarChar(500)
+  comments              String?  @db.Text
+  itarRegistered        Boolean  @default(false) @map("itar_registered")
+  status                Status   @default(ACTIVE)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
 
-  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  services SupplierService[]
+  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services       SupplierService[]
+  capabilityTags SupplierCapabilityTag[]
+  certifications SupplierCertification[]
+  documents      SupplierDocument[]
 
   @@map("supplier_profiles")
 }
 
+model Service {
+  id          String   @id @default(uuid()) @db.Char(36)
+  name        String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  suppliers SupplierService[]
+
+  @@map("services")
+}
+
 model SupplierService {
-  id          String      @id @default(uuid()) @db.Char(36)
-  supplierId  String      @map("supplier_id") @db.Char(36)
-  serviceType ServiceType @map("service_type")
-  createdAt   DateTime    @default(now()) @map("created_at")
+  id         String   @id @default(uuid()) @db.Char(36)
+  supplierId String   @map("supplier_id") @db.Char(36)
+  serviceId  String   @map("service_id") @db.Char(36)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  service  Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, serviceId])
+  @@map("supplier_services")
+}
+
+model CapabilityTag {
+  id        String   @id @default(uuid()) @db.Char(36)
+  name      String   @unique @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  suppliers SupplierCapabilityTag[]
+
+  @@map("capability_tags")
+}
+
+model SupplierCapabilityTag {
+  id         String   @id @default(uuid()) @db.Char(36)
+  supplierId String   @map("supplier_id") @db.Char(36)
+  tagId      String   @map("tag_id") @db.Char(36)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  tag      CapabilityTag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, tagId])
+  @@map("supplier_capability_tags")
+}
+
+model SupplierCertification {
+  id         String            @id @default(uuid()) @db.Char(36)
+  supplierId String            @map("supplier_id") @db.Char(36)
+  type       CertificationType
+  certified  Boolean           @default(false)
+  expiryDate DateTime?         @map("expiry_date")
+  fileName   String?           @map("file_name") @db.VarChar(255)
+  fileKey    String?           @map("file_key") @db.VarChar(500)
+  mimeType   String?           @map("mime_type") @db.VarChar(120)
+  fileSize   Int?              @map("file_size")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
 
   supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 
-  @@unique([supplierId, serviceType])
-  @@map("supplier_services")
+  @@unique([supplierId, type])
+  @@map("supplier_certifications")
+}
+
+model SupplierDocument {
+  id         String               @id @default(uuid()) @db.Char(36)
+  supplierId String               @map("supplier_id") @db.Char(36)
+  docType    SupplierDocumentType @map("doc_type")
+  fileName   String               @map("file_name") @db.VarChar(255)
+  fileKey    String               @map("file_key") @db.VarChar(500)
+  mimeType   String?              @map("mime_type") @db.VarChar(120)
+  fileSize   Int?                 @map("file_size")
+  uploadedAt DateTime             @default(now()) @map("uploaded_at")
+
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@map("supplier_documents")
 }
 
 model Client {

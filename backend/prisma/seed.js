@@ -4,11 +4,55 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 const ROUNDS = 10;
 
+const DEFAULT_SERVICES = [
+  { name: 'Design', description: null },
+  { name: 'Manufacturing', description: null },
+  { name: 'Inspection', description: null },
+  { name: 'Logistics', description: null },
+  { name: 'Packaging', description: null },
+  { name: 'Certification', description: null },
+];
+
+const STARTER_CAPABILITY_TAGS = [
+  'Composite tooling',
+  '5-axis machining',
+  'NDT ultrasonic',
+];
+
+async function seedCatalog() {
+  for (const service of DEFAULT_SERVICES) {
+    await prisma.service.upsert({
+      where: { name: service.name },
+      update: {
+        description: service.description,
+        status: 'ACTIVE',
+      },
+      create: {
+        name: service.name,
+        description: service.description,
+        status: 'ACTIVE',
+      },
+    });
+  }
+
+  for (const name of STARTER_CAPABILITY_TAGS) {
+    await prisma.capabilityTag.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
+  console.log('Catalog seeded: services + capability tags');
+}
+
 async function main() {
+  await seedCatalog();
+
   if (process.env.NODE_ENV === 'production') {
     const existingUsers = await prisma.user.count();
     if (existingUsers > 0) {
-      console.log('Production: users already exist, skipping seed.');
+      console.log('Production: users already exist, skipping user seed.');
       return;
     }
     console.log('Production: empty database, creating default users...');
@@ -62,6 +106,7 @@ async function main() {
       contactPerson: 'FabNet Supplier',
       phone: '+1-555-0100',
       address: '100 Industrial Park, Austin, TX',
+      itarRegistered: false,
       status: 'ACTIVE',
     },
     create: {
@@ -70,17 +115,22 @@ async function main() {
       contactPerson: 'FabNet Supplier',
       phone: '+1-555-0100',
       address: '100 Industrial Park, Austin, TX',
+      itarRegistered: false,
       status: 'ACTIVE',
     },
   });
 
-  for (const serviceType of ['DESIGN', 'MANUFACTURING', 'INSPECTION']) {
+  const serviceNames = ['Design', 'Manufacturing', 'Inspection'];
+  for (const name of serviceNames) {
+    const service = await prisma.service.findUnique({ where: { name } });
+    if (!service) continue;
+
     await prisma.supplierService.upsert({
       where: {
-        supplierId_serviceType: { supplierId: profile.id, serviceType },
+        supplierId_serviceId: { supplierId: profile.id, serviceId: service.id },
       },
       update: {},
-      create: { supplierId: profile.id, serviceType },
+      create: { supplierId: profile.id, serviceId: service.id },
     });
   }
 
