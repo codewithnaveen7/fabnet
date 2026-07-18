@@ -40,6 +40,11 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env.production
+    environment:
+      # Used by docker-entrypoint.sh to build a correctly encoded DATABASE_URL
+      MYSQL_USER: ${MYSQL_USER:-fabnet}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-fabnet}
     expose:
       - "3000"
     depends_on:

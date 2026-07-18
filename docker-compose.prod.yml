@@ -39,6 +39,10 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env.production
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-fabnet}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-fabnet}
     expose:
       - "3000"
     depends_on:
