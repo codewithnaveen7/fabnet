@@ -404,7 +404,7 @@ export default function RfqEditorPage({ mode = "create" }) {
           <p className="fn-page-subtitle mb-0">
             {isEdit
               ? "Update this request for quotation."
-              : "Draft a request for quotation. RFQ number is assigned on save."}
+              : "Draft a request for quotation. Selected suppliers receive an invite email on create."}
           </p>
         </div>
         <KButton
@@ -864,7 +864,7 @@ export default function RfqEditorPage({ mode = "create" }) {
           />
           <KButton
             type="submit"
-            label={isEdit ? "Save changes" : "Create RFQ"}
+            label={isEdit ? "Save changes" : "Create & send invites"}
             icon="pi pi-check"
             loading={loading}
           />

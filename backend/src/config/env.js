@@ -41,4 +41,18 @@ config.s3.isConfigured = Boolean(
     config.s3.secretAccessKey
 );
 
+config.mail = {
+  tenantId: process.env.AZURE_TENANT_ID || '',
+  clientId: process.env.AZURE_CLIENT_ID || '',
+  clientSecret: process.env.AZURE_CLIENT_SECRET || '',
+  fromEmail: process.env.FROM_EMAIL || '',
+};
+
+config.mail.isConfigured = Boolean(
+  config.mail.tenantId &&
+    config.mail.clientId &&
+    config.mail.clientSecret &&
+    config.mail.fromEmail
+);
+
 module.exports = config;

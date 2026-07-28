@@ -122,6 +122,63 @@ async function main() {
     });
   }
 
+  // Mail test supplier — used for RFQ invite email verification
+  const mailTestPassword = await bcrypt.hash('Supplier@123', ROUNDS);
+  const mailTestUser = await prisma.user.upsert({
+    where: { email: 'mynameisnaveensingh@gmail.com' },
+    update: {
+      name: 'Naveen Singh',
+      password: mailTestPassword,
+      role: 'SUPPLIER',
+      status: 'ACTIVE',
+      phone: '+91-9999999999',
+    },
+    create: {
+      email: 'mynameisnaveensingh@gmail.com',
+      name: 'Naveen Singh',
+      password: mailTestPassword,
+      role: 'SUPPLIER',
+      status: 'ACTIVE',
+      phone: '+91-9999999999',
+    },
+  });
+
+  const mailTestProfile = await prisma.supplierProfile.upsert({
+    where: { userId: mailTestUser.id },
+    update: {
+      companyName: 'Naveen Test Supplies',
+      contactPerson: 'Naveen Singh',
+      phone: '+91-9999999999',
+      address: 'Test Address',
+      itarRegistered: false,
+      status: 'ACTIVE',
+    },
+    create: {
+      userId: mailTestUser.id,
+      companyName: 'Naveen Test Supplies',
+      contactPerson: 'Naveen Singh',
+      phone: '+91-9999999999',
+      address: 'Test Address',
+      itarRegistered: false,
+      status: 'ACTIVE',
+    },
+  });
+
+  for (const name of ['Manufacturing', 'Design', 'Inspection']) {
+    const service = await prisma.service.findUnique({ where: { name } });
+    if (!service) continue;
+    await prisma.supplierService.upsert({
+      where: {
+        supplierId_serviceId: {
+          supplierId: mailTestProfile.id,
+          serviceId: service.id,
+        },
+      },
+      update: {},
+      create: { supplierId: mailTestProfile.id, serviceId: service.id },
+    });
+  }
+
   await prisma.client.upsert({
     where: { email: 'contact@fabnetsystems.com' },
     update: {
@@ -141,7 +198,11 @@ async function main() {
     },
   });
 
-  console.log('Seed completed:', { admin: admin.email, supplier: supplier.email });
+  console.log('Seed completed:', {
+    admin: admin.email,
+    supplier: supplier.email,
+    mailTestSupplier: mailTestUser.email,
+  });
 }
 
 main()

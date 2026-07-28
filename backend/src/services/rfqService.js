@@ -5,6 +5,7 @@ const {
   assertActiveServiceIds,
   resolveServiceIdsByNames,
 } = require('./serviceService');
+const { sendRfqInviteEmails } = require('./rfqMailService');
 
 const rfqDetailSelect = {
   id: true,
@@ -395,7 +396,18 @@ async function createRfq(payload, files = {}, requestedById) {
     });
   }
 
-  return getRfqById(rfqId);
+  let rfq = await getRfqById(rfqId);
+  const mail = await sendRfqInviteEmails(rfq);
+
+  if (mail.sent > 0) {
+    await prisma.rfq.update({
+      where: { id: rfqId },
+      data: { status: 'SENT' },
+    });
+    rfq = await getRfqById(rfqId);
+  }
+
+  return { ...rfq, mail };
 }
 
 async function updateRfq(id, payload, files = {}) {
