@@ -27,8 +27,6 @@ const createValidators = [
   body('services').optional().isArray(),
   body('services.*').optional().isUUID().withMessage(uuidMsg),
   body('itarRegistered').optional().isBoolean().toBoolean(),
-  body('capabilityTags').optional().isArray(),
-  body('capabilityTags.*').optional().isString().trim(),
   body('certifications').optional().isArray(),
 ];
 
@@ -49,8 +47,6 @@ const updateValidators = [
   body('services').optional().isArray(),
   body('services.*').optional().isUUID().withMessage(uuidMsg),
   body('itarRegistered').optional().isBoolean().toBoolean(),
-  body('capabilityTags').optional().isArray(),
-  body('capabilityTags.*').optional().isString().trim(),
   body('certifications').optional().isArray(),
   body('removeDocumentIds').optional().isArray(),
   body('removeDocumentIds.*').optional().isUUID(),

@@ -5,7 +5,7 @@ const corsOptions = require('./config/cors');
 const authRoutes = require('./routes/authRoutes');
 const supplierRoutes = require('./routes/supplierRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
-const capabilityTagRoutes = require('./routes/capabilityTagRoutes');
+const rfqRoutes = require('./routes/rfqRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 function createApp() {
@@ -29,7 +29,7 @@ function createApp() {
   app.use('/api/auth', authRoutes);
   app.use('/api/suppliers', supplierRoutes);
   app.use('/api/services', serviceRoutes);
-  app.use('/api/capability-tags', capabilityTagRoutes);
+  app.use('/api/rfqs', rfqRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -29,7 +29,6 @@ const supplierFieldsBase = {
   comments: z.string().trim().max(2000, "Comments are too long").optional().or(z.literal("")),
   services: z.array(uuidSchema).default([]),
   itarRegistered: z.boolean().default(false),
-  capabilityTags: z.array(z.string().trim().min(1)).default([]),
   certifications: z.array(certificationSchema).default([
     { type: "AS9100", certified: false, expiryDate: null },
     { type: "ISO9001", certified: false, expiryDate: null },
@@ -86,6 +85,38 @@ export const serviceSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(255),
   description: z.string().trim().optional().or(z.literal("")),
   status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+});
+
+export const addRfqSchema = z.object({
+  title: z.string().trim().min(1, "RFQ title is required").max(255),
+  clientProjectName: z.string().trim().min(1, "Client / project name is required").max(255),
+  quoteDueDate: z.union([z.date(), z.string()]).refine((v) => Boolean(v), {
+    message: "Quote due date is required",
+  }),
+  requiredDeliveryDate: z.union([z.date(), z.string()]).refine((v) => Boolean(v), {
+    message: "Required delivery date is required",
+  }),
+  partName: z.string().trim().min(1, "Part / assembly name is required").max(255),
+  partNumber: z.string().trim().min(1, "Part number / drawing number is required").max(255),
+  revisionLevel: z.string().trim().max(50).optional().or(z.literal("")),
+  quantity: z.coerce.number({ invalid_type_error: "Quantity is required" }).positive("Quantity must be greater than 0"),
+  unitOfMeasure: z.string().trim().min(1, "Unit of measure is required"),
+  processServiceIds: z.array(z.string().uuid()).default([]),
+  materialSpecification: z.string().trim().max(2000).optional().or(z.literal("")),
+  specialProcesses: z.array(z.string()).default([]),
+  toleranceNotes: z.string().trim().max(5000).optional().or(z.literal("")),
+  requiredCertifications: z.array(z.string()).default([]),
+  itarExportControl: z.boolean({ required_error: "ITAR / export control is required" }),
+  countryOfOriginRestriction: z.string().trim().optional().or(z.literal("")),
+  incoterms: z.string().trim().min(1, "Incoterms is required"),
+  targetBudgetaryPrice: z
+    .union([z.coerce.number().nonnegative(), z.literal(""), z.null()])
+    .optional(),
+  paymentTerms: z.string().trim().optional().or(z.literal("")),
+  currency: z.string().trim().min(1, "Currency is required"),
+  quotesRequired: z
+    .union([z.coerce.number().int().positive(), z.literal(""), z.null()])
+    .optional(),
 });
 
 export const bulkSupplierRowSchema = z.object({

@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   KButton,
   KCalendar,
-  KChips,
   KDropdown,
   KInputSwitch,
   KInputText,
@@ -171,7 +170,6 @@ export default function EditSupplierPage() {
       services: [],
       status: "ACTIVE",
       itarRegistered: false,
-      capabilityTags: [],
       certifications: [
         { type: "AS9100", certified: false, expiryDate: null },
         { type: "ISO9001", certified: false, expiryDate: null },
@@ -201,7 +199,6 @@ export default function EditSupplierPage() {
       services: profile.services?.map((s) => s.serviceId || s.service?.id) || [],
       status: data.status || "ACTIVE",
       itarRegistered: Boolean(profile.itarRegistered),
-      capabilityTags: profile.capabilityTags?.map((t) => t.tag?.name).filter(Boolean) || [],
       certifications: ["AS9100", "ISO9001"].map((type) => {
         const c = findCert(type);
         return {
@@ -481,22 +478,6 @@ export default function EditSupplierPage() {
                   placeholder="Select services"
                   display="chip"
                   filter
-                  className={fieldClassName(fieldState)}
-                />
-              )}
-            />
-            <ValidatedField
-              name="capabilityTags"
-              control={control}
-              label="Process capability tags"
-              htmlFor="capabilityTags"
-              className="fn-form-full"
-              render={(field, fieldState) => (
-                <KChips
-                  inputId="capabilityTags"
-                  value={field.value || []}
-                  onChange={(e) => field.onChange(e.value)}
-                  separator=","
                   className={fieldClassName(fieldState)}
                 />
               )}

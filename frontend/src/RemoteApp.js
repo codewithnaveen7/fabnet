@@ -23,6 +23,10 @@ const AddSupplierPage = lazy(() => import("./pages/AddSupplierPage"));
 const BulkUploadSuppliersPage = lazy(() => import("./pages/BulkUploadSuppliersPage"));
 const EditSupplierPage = lazy(() => import("./pages/EditSupplierPage"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const RfqsPage = lazy(() => import("./pages/RfqsPage"));
+const AddRfqPage = lazy(() => import("./pages/AddRfqPage"));
+const EditRfqPage = lazy(() => import("./pages/EditRfqPage"));
+const ViewRfqPage = lazy(() => import("./pages/ViewRfqPage"));
 
 function AppRoutes() {
   return (
@@ -40,6 +44,10 @@ function AppRoutes() {
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route element={<RequireRole roles={["ADMIN"]} />}>
+              <Route path="rfqs" element={<RfqsPage />} />
+              <Route path="rfqs/add" element={<AddRfqPage />} />
+              <Route path="rfqs/:id/edit" element={<EditRfqPage />} />
+              <Route path="rfqs/:id" element={<ViewRfqPage />} />
               <Route path="services" element={<ServicesPage />} />
               <Route path="suppliers" element={<SuppliersPage />} />
               <Route path="suppliers/add" element={<AddSupplierPage />} />

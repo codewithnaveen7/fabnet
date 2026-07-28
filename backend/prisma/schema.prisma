@@ -27,6 +27,14 @@ enum SupplierDocumentType {
   BROCHURE
 }
 
+enum RfqStatus {
+  DRAFT
+  SENT
+  QUOTES_RECEIVED
+  AWARDED
+  CLOSED
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Char(36)
   name      String   @db.VarChar(255)
@@ -39,6 +47,7 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   supplierProfile SupplierProfile?
+  requestedRfqs   Rfq[]
 
   @@map("users")
 }
@@ -61,9 +70,9 @@ model SupplierProfile {
 
   user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
   services       SupplierService[]
-  capabilityTags SupplierCapabilityTag[]
   certifications SupplierCertification[]
   documents      SupplierDocument[]
+  rfqInvites     RfqInvite[]
 
   @@map("supplier_profiles")
 }
@@ -76,7 +85,8 @@ model Service {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  suppliers SupplierService[]
+  suppliers    SupplierService[]
+  rfqProcesses RfqProcessService[]
 
   @@map("services")
 }
@@ -92,30 +102,6 @@ model SupplierService {
 
   @@unique([supplierId, serviceId])
   @@map("supplier_services")
-}
-
-model CapabilityTag {
-  id        String   @id @default(uuid()) @db.Char(36)
-  name      String   @unique @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  suppliers SupplierCapabilityTag[]
-
-  @@map("capability_tags")
-}
-
-model SupplierCapabilityTag {
-  id         String   @id @default(uuid()) @db.Char(36)
-  supplierId String   @map("supplier_id") @db.Char(36)
-  tagId      String   @map("tag_id") @db.Char(36)
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  tag      CapabilityTag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
-
-  @@unique([supplierId, tagId])
-  @@map("supplier_capability_tags")
 }
 
 model SupplierCertification {
@@ -164,4 +150,84 @@ model Client {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   @@map("clients")
+}
+
+model Rfq {
+  id                          String    @id @default(uuid()) @db.Char(36)
+  rfqNumber                   String    @unique @map("rfq_number") @db.VarChar(32)
+  title                       String    @db.VarChar(255)
+  requestedById               String    @map("requested_by_id") @db.Char(36)
+  clientProjectName           String    @map("client_project_name") @db.VarChar(255)
+  dateCreated                 DateTime  @default(now()) @map("date_created")
+  quoteDueDate                DateTime  @map("quote_due_date") @db.Date
+  requiredDeliveryDate        DateTime  @map("required_delivery_date") @db.Date
+  partName                    String    @map("part_name") @db.VarChar(255)
+  partNumber                  String    @map("part_number") @db.VarChar(255)
+  revisionLevel               String?   @map("revision_level") @db.VarChar(50)
+  materialSpecification       String?   @map("material_specification") @db.Text
+  quantity                    Decimal   @db.Decimal(14, 3)
+  unitOfMeasure               String    @map("unit_of_measure") @db.VarChar(32)
+  specialProcesses            Json      @default("[]") @map("special_processes")
+  toleranceNotes              String?   @map("tolerance_notes") @db.Text
+  requiredCertifications      Json      @default("[]") @map("required_certifications")
+  itarExportControl           Boolean   @map("itar_export_control")
+  countryOfOriginRestriction  String?   @map("country_of_origin_restriction") @db.VarChar(120)
+  incoterms                   String    @db.VarChar(32)
+  targetBudgetaryPrice        Decimal?  @map("target_budgetary_price") @db.Decimal(14, 2)
+  paymentTerms                String?   @map("payment_terms") @db.VarChar(64)
+  currency                    String    @db.VarChar(8)
+  quotesRequired              Int?      @map("quotes_required")
+  status                      RfqStatus @default(DRAFT)
+  createdAt                   DateTime  @default(now()) @map("created_at")
+  updatedAt                   DateTime  @updatedAt @map("updated_at")
+
+  requestedBy     User                @relation(fields: [requestedById], references: [id])
+  processServices RfqProcessService[]
+  documents       RfqDocument[]
+  invites         RfqInvite[]
+
+  @@index([status])
+  @@index([quoteDueDate])
+  @@map("rfqs")
+}
+
+model RfqProcessService {
+  id        String   @id @default(uuid()) @db.Char(36)
+  rfqId     String   @map("rfq_id") @db.Char(36)
+  serviceId String   @map("service_id") @db.Char(36)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  rfq     Rfq     @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([rfqId, serviceId])
+  @@map("rfq_process_services")
+}
+
+model RfqDocument {
+  id         String   @id @default(uuid()) @db.Char(36)
+  rfqId      String   @map("rfq_id") @db.Char(36)
+  fileName   String   @map("file_name") @db.VarChar(255)
+  fileKey    String   @map("file_key") @db.VarChar(500)
+  mimeType   String?  @map("mime_type") @db.VarChar(120)
+  fileSize   Int?     @map("file_size")
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  rfq Rfq @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+
+  @@map("rfq_documents")
+}
+
+model RfqInvite {
+  id         String   @id @default(uuid()) @db.Char(36)
+  rfqId      String   @map("rfq_id") @db.Char(36)
+  supplierId String   @map("supplier_id") @db.Char(36)
+  included   Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  rfq      Rfq             @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@unique([rfqId, supplierId])
+  @@map("rfq_invites")
 }

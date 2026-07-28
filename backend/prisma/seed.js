@@ -13,11 +13,6 @@ const DEFAULT_SERVICES = [
   { name: 'Certification', description: null },
 ];
 
-const STARTER_CAPABILITY_TAGS = [
-  'Composite tooling',
-  '5-axis machining',
-  'NDT ultrasonic',
-];
 
 async function seedCatalog() {
   for (const service of DEFAULT_SERVICES) {
@@ -35,15 +30,8 @@ async function seedCatalog() {
     });
   }
 
-  for (const name of STARTER_CAPABILITY_TAGS) {
-    await prisma.capabilityTag.upsert({
-      where: { name },
-      update: {},
-      create: { name },
-    });
-  }
+  console.log('Catalog seeded: services');
 
-  console.log('Catalog seeded: services + capability tags');
 }
 
 async function main() {

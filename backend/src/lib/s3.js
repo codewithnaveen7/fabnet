@@ -30,13 +30,16 @@ function safeFileName(originalName) {
   return base.slice(0, 180) || 'file';
 }
 
-function buildObjectKey(supplierId, kind, type, originalName) {
+function buildObjectKey(ownerId, kind, type, originalName) {
   const name = safeFileName(originalName);
   const id = randomUUID();
-  if (kind === 'cert') {
-    return `suppliers/${supplierId}/certs/${type}/${id}-${name}`;
+  if (kind === 'rfq') {
+    return `rfqs/${ownerId}/drawings/${id}-${name}`;
   }
-  return `suppliers/${supplierId}/docs/${type}/${id}-${name}`;
+  if (kind === 'cert') {
+    return `suppliers/${ownerId}/certs/${type}/${id}-${name}`;
+  }
+  return `suppliers/${ownerId}/docs/${type}/${id}-${name}`;
 }
 
 async function uploadObject({ key, body, contentType }) {

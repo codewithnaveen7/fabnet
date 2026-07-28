@@ -596,7 +596,16 @@
   border: 1px solid var(--fn-border);
   border-radius: var(--fn-radius);
   box-shadow: var(--fn-shadow);
-  overflow: hidden;
+  /* visible so Dropdown/MultiSelect panels are not clipped and can close on outside click */
+  overflow: visible;
+}
+
+.fn-detail-value {
+  font-size: 0.95rem;
+  color: var(--fn-text, #0f172a);
+  line-height: 1.45;
+  min-height: 1.5rem;
+  word-break: break-word;
 }
 
 .fn-form-section-header {
@@ -920,6 +929,127 @@
 
 .fn-form-sticky-actions .p-button {
   width: max-content;
+}
+
+.fn-invite-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fn-invite-row {
+  border: 1px solid var(--fn-border);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  background: #fff;
+}
+
+.fn-invite-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.fn-invite-meta label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.fn-invite-sub {
+  font-size: 0.8rem;
+  color: var(--fn-muted);
+  font-weight: 400;
+}
+
+.fn-invite-option {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.fn-invite-option-text {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.fn-invite-option-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.fn-invite-option-meta {
+  font-size: 0.75rem;
+  color: var(--fn-muted, #64748b);
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.fn-invite-option-badge {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--fn-accent, #0f766e);
+  background: var(--fn-accent-soft, #ccfbf1);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+
+.fn-invite-field {
+  max-width: 28rem;
+}
+
+.fn-invite-multiselect,
+.fn-invite-multiselect.p-multiselect {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.fn-invite-multiselect .p-multiselect-label {
+  white-space: normal;
+}
+
+.fn-invite-multiselect-panel.p-multiselect-panel,
+.p-multiselect-panel.fn-invite-multiselect-panel {
+  width: min(28rem, calc(100vw - 2rem)) !important;
+  max-width: min(28rem, calc(100vw - 2rem)) !important;
+}
+
+.fn-invite-multiselect-panel .p-multiselect-items .p-multiselect-item {
+  white-space: normal;
+  height: auto;
+  align-items: flex-start;
+  line-height: 1.35;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+.fn-field-hint {
+  display: block;
+  margin-top: 0.4rem;
+  color: #64748b;
+  font-size: 0.8rem;
 }
 
 .fn-services-dialog .p-dialog-content {

@@ -2,7 +2,6 @@ const prisma = require('../lib/prisma');
 const ApiError = require('../utils/ApiError');
 const { hashPassword } = require('../utils/password');
 const { assertActiveServiceIds, resolveServiceIdsByNames } = require('./serviceService');
-const { resolveTagIdsByNames } = require('./capabilityTagService');
 const { buildObjectKey, uploadObject, deleteObject, getPresignedGetUrl } = require('../lib/s3');
 
 const CERT_TYPES = ['AS9100', 'ISO9001'];
@@ -31,12 +30,6 @@ const supplierListSelect = {
         select: {
           serviceId: true,
           service: { select: { id: true, name: true, status: true } },
-        },
-      },
-      capabilityTags: {
-        select: {
-          tagId: true,
-          tag: { select: { id: true, name: true } },
         },
       },
       certifications: {
@@ -83,17 +76,6 @@ async function syncServices(tx, profileId, serviceIds) {
   if (ids.length) {
     await tx.supplierService.createMany({
       data: ids.map((serviceId) => ({ supplierId: profileId, serviceId })),
-    });
-  }
-}
-
-async function syncCapabilityTags(tx, profileId, tagNames) {
-  const names = Array.isArray(tagNames) ? tagNames : [];
-  const tagIds = await resolveTagIdsByNames(names);
-  await tx.supplierCapabilityTag.deleteMany({ where: { supplierId: profileId } });
-  if (tagIds.length) {
-    await tx.supplierCapabilityTag.createMany({
-      data: tagIds.map((tagId) => ({ supplierId: profileId, tagId })),
     });
   }
 }
@@ -233,7 +215,6 @@ async function createSupplier(payload, files = {}) {
     comments,
     services = [],
     itarRegistered = false,
-    capabilityTags = [],
     certifications = [],
   } = payload;
 
@@ -274,7 +255,6 @@ async function createSupplier(payload, files = {}) {
     });
 
     await syncServices(tx, profile.id, services);
-    await syncCapabilityTags(tx, profile.id, capabilityTags);
     return { userId: user.id, profileId: profile.id };
   });
 
@@ -404,7 +384,6 @@ async function updateSupplier(id, payload, files = {}) {
     services = [],
     status,
     itarRegistered,
-    capabilityTags = [],
     certifications = [],
     removeDocumentIds = [],
   } = payload;
@@ -457,7 +436,6 @@ async function updateSupplier(id, payload, files = {}) {
     });
 
     await syncServices(tx, profileId, services);
-    await syncCapabilityTags(tx, profileId, capabilityTags);
     await syncCertifications(tx, profileId, certifications, files);
     await syncDocuments(tx, profileId, files, { removeDocumentIds });
   });

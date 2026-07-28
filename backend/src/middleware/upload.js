@@ -35,6 +35,14 @@ const supplierUploadFields = upload.fields([
   { name: 'brochures', maxCount: 5 },
 ]);
 
+const rfqUpload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: MAX_BYTES, files: 10 },
+});
+
+const rfqUploadFields = rfqUpload.fields([{ name: 'drawings', maxCount: 10 }]);
+
 /** Parse multipart `payload` JSON field into req.body; keep JSON body as-is. */
 function parseSupplierPayload(req, _res, next) {
   if (req.is('multipart/form-data') && typeof req.body?.payload === 'string') {
@@ -49,9 +57,13 @@ function parseSupplierPayload(req, _res, next) {
   next();
 }
 
+const parseRfqPayload = parseSupplierPayload;
+
 module.exports = {
   supplierUploadFields,
   parseSupplierPayload,
+  rfqUploadFields,
+  parseRfqPayload,
   ALLOWED_MIME,
   MAX_BYTES,
 };

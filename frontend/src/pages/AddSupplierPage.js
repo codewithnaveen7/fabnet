@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import {
   KButton,
   KCalendar,
-  KChips,
   KInputSwitch,
   KInputText,
   KMultiSelect,
@@ -41,7 +40,6 @@ const defaultValues = {
   comments: "",
   services: [],
   itarRegistered: false,
-  capabilityTags: [],
   certifications: defaultCertifications,
 };
 
@@ -361,26 +359,6 @@ export default function AddSupplierPage() {
                 />
               )}
             />
-            <ValidatedField
-              name="capabilityTags"
-              control={control}
-              label="Process capability tags"
-              htmlFor="capabilityTags"
-              className="fn-form-full"
-              render={(field, fieldState) => (
-                <KChips
-                  inputId="capabilityTags"
-                  value={field.value || []}
-                  onChange={(e) => field.onChange(e.value)}
-                  onBlur={field.onBlur}
-                  separator=","
-                  className={fieldClassName(fieldState)}
-                />
-              )}
-            />
-            <p className="fn-form-full fn-field-hint">
-              Type a tag and press Enter or comma. New tags are created automatically.
-            </p>
             <div className="fn-form-full fn-toggle-row">
               <div>
                 <div className="fn-toggle-label">ITAR registered</div>
