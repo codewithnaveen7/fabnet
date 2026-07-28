@@ -69,6 +69,12 @@ function buildNavSections(role, navigate) {
         label: "Business",
         items: [
           {
+            label: "My RFQs",
+            icon: "pi pi-file",
+            path: "/dashboard/rfqs",
+            command: () => navigate("/dashboard/rfqs"),
+          },
+          {
             label: "My Company",
             icon: "pi pi-briefcase",
             disabled: true,

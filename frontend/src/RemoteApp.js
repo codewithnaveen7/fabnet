@@ -43,11 +43,13 @@ function AppRoutes() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route element={<RequireRole roles={["ADMIN"]} />}>
+            <Route element={<RequireRole roles={["ADMIN", "SUPPLIER"]} />}>
               <Route path="rfqs" element={<RfqsPage />} />
+              <Route path="rfqs/:id" element={<ViewRfqPage />} />
+            </Route>
+            <Route element={<RequireRole roles={["ADMIN"]} />}>
               <Route path="rfqs/add" element={<AddRfqPage />} />
               <Route path="rfqs/:id/edit" element={<EditRfqPage />} />
-              <Route path="rfqs/:id" element={<ViewRfqPage />} />
               <Route path="services" element={<ServicesPage />} />
               <Route path="suppliers" element={<SuppliersPage />} />
               <Route path="suppliers/add" element={<AddSupplierPage />} />

@@ -199,8 +199,51 @@ function parseDateOnly(value, field) {
   return d;
 }
 
-async function listRfqs() {
+async function resolveSupplierProfileId(userId) {
+  const profile = await prisma.supplierProfile.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  if (!profile) throw ApiError.forbidden('Supplier profile not found');
+  return profile.id;
+}
+
+async function assertSupplierCanAccessRfq(rfqId, userId) {
+  const supplierId = await resolveSupplierProfileId(userId);
+  const invite = await prisma.rfqInvite.findFirst({
+    where: { rfqId, supplierId, included: true },
+    select: { id: true },
+  });
+  if (!invite) throw ApiError.forbidden('You are not invited to this RFQ');
+  return supplierId;
+}
+
+function sanitizeRfqForSupplier(rfq) {
+  if (!rfq) return rfq;
+  const { targetBudgetaryPrice, invites, ...rest } = rfq;
+  return {
+    ...rest,
+    // Hide internal budget and other invitees from suppliers
+    targetBudgetaryPrice: undefined,
+    invites: undefined,
+  };
+}
+
+async function listRfqs(user) {
+  const where =
+    user?.role === 'SUPPLIER'
+      ? {
+          invites: {
+            some: {
+              included: true,
+              supplier: { userId: user.id },
+            },
+          },
+        }
+      : {};
+
   return prisma.rfq.findMany({
+    where,
     select: {
       id: true,
       rfqNumber: true,
@@ -219,12 +262,18 @@ async function listRfqs() {
   });
 }
 
-async function getRfqById(id) {
+async function getRfqById(id, user = null) {
   const rfq = await prisma.rfq.findUnique({
     where: { id },
     select: rfqDetailSelect,
   });
   if (!rfq) throw ApiError.notFound('RFQ not found');
+
+  if (user?.role === 'SUPPLIER') {
+    await assertSupplierCanAccessRfq(id, user.id);
+    return sanitizeRfqForSupplier(rfq);
+  }
+
   return rfq;
 }
 
@@ -526,7 +575,11 @@ async function updateRfq(id, payload, files = {}) {
   return getRfqById(id);
 }
 
-async function getFileDownloadUrl({ rfqId, id }) {
+async function getFileDownloadUrl({ rfqId, id }, user = null) {
+  if (user?.role === 'SUPPLIER') {
+    await assertSupplierCanAccessRfq(rfqId, user.id);
+  }
+
   const doc = await prisma.rfqDocument.findFirst({
     where: { id, rfqId },
   });

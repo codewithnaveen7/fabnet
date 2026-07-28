@@ -1,12 +1,12 @@
 const rfqService = require('../services/rfqService');
 
-async function listRfqs(_req, res) {
-  const rfqs = await rfqService.listRfqs();
+async function listRfqs(req, res) {
+  const rfqs = await rfqService.listRfqs(req.user);
   res.json({ success: true, data: rfqs });
 }
 
 async function getRfq(req, res) {
-  const rfq = await rfqService.getRfqById(req.body.id);
+  const rfq = await rfqService.getRfqById(req.body.id, req.user);
   res.json({ success: true, data: rfq });
 }
 
@@ -27,7 +27,7 @@ async function suggestSuppliers(req, res) {
 }
 
 async function getFileUrl(req, res) {
-  const result = await rfqService.getFileDownloadUrl(req.body);
+  const result = await rfqService.getFileDownloadUrl(req.body, req.user);
   res.json({ success: true, data: result });
 }
 

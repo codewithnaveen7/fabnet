@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   KButton,
   KProgressSpinner,
@@ -11,6 +12,7 @@ import "kdesigns/kDesignStyle";
 import FormSection from "../components/FormSection";
 import { unwrapApiData } from "../utils/apiResponse";
 import { RFQ_STATUS_LABELS } from "../constants/rfqOptions";
+import { selectRole } from "../store/authSlice";
 import "../styles/dashboard.css";
 
 function statusSeverity(status) {
@@ -64,6 +66,8 @@ export default function ViewRfqPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const role = useSelector(selectRole);
+  const isAdmin = role === "ADMIN";
   const [deleting, setDeleting] = useState(false);
 
   const { postData: deleteRfq } = useMutationPost({
@@ -170,21 +174,25 @@ export default function ViewRfqPage() {
             outlined
             onClick={() => navigate("/dashboard/rfqs")}
           />
-          <KButton
-            type="button"
-            label="Edit"
-            icon="pi pi-pencil"
-            onClick={() => navigate(`/dashboard/rfqs/${id}/edit`)}
-          />
-          <KButton
-            type="button"
-            label="Delete"
-            icon="pi pi-trash"
-            severity="danger"
-            outlined
-            loading={deleting}
-            onClick={handleDelete}
-          />
+          {isAdmin ? (
+            <>
+              <KButton
+                type="button"
+                label="Edit"
+                icon="pi pi-pencil"
+                onClick={() => navigate(`/dashboard/rfqs/${id}/edit`)}
+              />
+              <KButton
+                type="button"
+                label="Delete"
+                icon="pi pi-trash"
+                severity="danger"
+                outlined
+                loading={deleting}
+                onClick={handleDelete}
+              />
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -270,42 +278,46 @@ export default function ViewRfqPage() {
           <div className="fn-form-grid">
             <Detail label="Incoterms">{rfq.incoterms}</Detail>
             <Detail label="Currency">{rfq.currency}</Detail>
-            <Detail label="Target / budgetary price">
-              {formatMoney(rfq.targetBudgetaryPrice, rfq.currency)}
-            </Detail>
+            {isAdmin ? (
+              <Detail label="Target / budgetary price">
+                {formatMoney(rfq.targetBudgetaryPrice, rfq.currency)}
+              </Detail>
+            ) : null}
             <Detail label="Payment terms">{rfq.paymentTerms || "—"}</Detail>
             <Detail label="Quotes required">{rfq.quotesRequired ?? "—"}</Detail>
           </div>
         </FormSection>
 
-        <FormSection
-          icon="pi pi-users"
-          title="Suppliers invited"
-          description="Suppliers currently on this RFQ."
-        >
-          {rfq.invites?.length ? (
-            <ul className="fn-invite-list">
-              {rfq.invites.map((invite) => (
-                <li key={invite.id || invite.supplierId} className="fn-invite-row">
-                  <div className="fn-invite-meta">
-                    <div>
-                      <strong>{invite.supplier?.companyName || "—"}</strong>
-                      <span className="fn-invite-sub">
-                        {invite.supplier?.contactPerson || ""}
-                        {invite.supplier?.user?.email
-                          ? ` · ${invite.supplier.user.email}`
-                          : ""}
-                        {invite.included === false ? " · Excluded" : ""}
-                      </span>
+        {isAdmin ? (
+          <FormSection
+            icon="pi pi-users"
+            title="Suppliers invited"
+            description="Suppliers currently on this RFQ."
+          >
+            {rfq.invites?.length ? (
+              <ul className="fn-invite-list">
+                {rfq.invites.map((invite) => (
+                  <li key={invite.id || invite.supplierId} className="fn-invite-row">
+                    <div className="fn-invite-meta">
+                      <div>
+                        <strong>{invite.supplier?.companyName || "—"}</strong>
+                        <span className="fn-invite-sub">
+                          {invite.supplier?.contactPerson || ""}
+                          {invite.supplier?.user?.email
+                            ? ` · ${invite.supplier.user.email}`
+                            : ""}
+                          {invite.included === false ? " · Excluded" : ""}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="fn-doc-empty mb-0">No suppliers invited.</p>
-          )}
-        </FormSection>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="fn-doc-empty mb-0">No suppliers invited.</p>
+            )}
+          </FormSection>
+        ) : null}
       </div>
     </div>
   );

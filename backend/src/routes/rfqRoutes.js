@@ -80,16 +80,47 @@ const updateValidators = [
   body('status').optional().isIn(['DRAFT', 'SENT', 'QUOTES_RECEIVED', 'AWARDED', 'CLOSED']),
 ];
 
-router.use(authenticate, requireRole('ADMIN'));
+router.use(authenticate);
 
-router.get('/', parseEventBody, asyncHandler(rfqController.listRfqs));
-router.post('/', parseEventBody, asyncHandler(rfqController.listRfqs));
-router.post('/get', parseEventBody, [body('id').notEmpty()], validate, asyncHandler(rfqController.getRfq));
-router.post('/create', multipartOrJson, createValidators, validate, asyncHandler(rfqController.createRfq));
-router.post('/update', multipartOrJson, updateValidators, validate, asyncHandler(rfqController.updateRfq));
+router.get('/', parseEventBody, requireRole('ADMIN', 'SUPPLIER'), asyncHandler(rfqController.listRfqs));
+router.post('/', parseEventBody, requireRole('ADMIN', 'SUPPLIER'), asyncHandler(rfqController.listRfqs));
+router.post(
+  '/get',
+  parseEventBody,
+  requireRole('ADMIN', 'SUPPLIER'),
+  [body('id').notEmpty()],
+  validate,
+  asyncHandler(rfqController.getRfq)
+);
+router.post(
+  '/file-url',
+  parseEventBody,
+  requireRole('ADMIN', 'SUPPLIER'),
+  [body('rfqId').notEmpty(), body('id').notEmpty()],
+  validate,
+  asyncHandler(rfqController.getFileUrl)
+);
+
+router.post(
+  '/create',
+  requireRole('ADMIN'),
+  multipartOrJson,
+  createValidators,
+  validate,
+  asyncHandler(rfqController.createRfq)
+);
+router.post(
+  '/update',
+  requireRole('ADMIN'),
+  multipartOrJson,
+  updateValidators,
+  validate,
+  asyncHandler(rfqController.updateRfq)
+);
 router.post(
   '/delete',
   parseEventBody,
+  requireRole('ADMIN'),
   [body('id').notEmpty()],
   validate,
   asyncHandler(rfqController.deleteRfq)
@@ -97,6 +128,7 @@ router.post(
 router.post(
   '/suggest-suppliers',
   parseEventBody,
+  requireRole('ADMIN'),
   [
     body('processServiceIds').optional().isArray(),
     body('processTagIds').optional().isArray(),
@@ -104,13 +136,6 @@ router.post(
   ],
   validate,
   asyncHandler(rfqController.suggestSuppliers)
-);
-router.post(
-  '/file-url',
-  parseEventBody,
-  [body('rfqId').notEmpty(), body('id').notEmpty()],
-  validate,
-  asyncHandler(rfqController.getFileUrl)
 );
 
 module.exports = router;

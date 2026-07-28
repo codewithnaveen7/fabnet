@@ -1,11 +1,13 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { KButton, KColumn, KDataTable, KProgressSpinner, KTag } from "kdesigns/KDesign";
 import { useMutationPost, useQueryGet } from "kdesigns/KHooks";
 import { useQueryClient } from "@tanstack/react-query";
 import "kdesigns/kDesignStyle";
 import { unwrapApiData } from "../utils/apiResponse";
 import { RFQ_STATUS_LABELS } from "../constants/rfqOptions";
+import { selectRole } from "../store/authSlice";
 import "../styles/dashboard.css";
 
 function statusSeverity(status) {
@@ -32,7 +34,7 @@ function formatDate(value) {
   return d.toISOString().slice(0, 10);
 }
 
-function ActionButtons({ row, onView, onEdit, onDelete, deleting }) {
+function ActionButtons({ row, isAdmin, onView, onEdit, onDelete, deleting }) {
   return (
     <div className="fn-table-actions">
       <KButton
@@ -44,25 +46,29 @@ function ActionButtons({ row, onView, onEdit, onDelete, deleting }) {
         tooltip="View"
         onClick={() => onView(row.id)}
       />
-      <KButton
-        type="button"
-        icon="pi pi-pencil"
-        severity="secondary"
-        outlined
-        size="small"
-        tooltip="Edit"
-        onClick={() => onEdit(row.id)}
-      />
-      <KButton
-        type="button"
-        icon="pi pi-trash"
-        severity="danger"
-        outlined
-        size="small"
-        tooltip="Delete"
-        loading={deleting === row.id}
-        onClick={() => onDelete(row)}
-      />
+      {isAdmin ? (
+        <>
+          <KButton
+            type="button"
+            icon="pi pi-pencil"
+            severity="secondary"
+            outlined
+            size="small"
+            tooltip="Edit"
+            onClick={() => onEdit(row.id)}
+          />
+          <KButton
+            type="button"
+            icon="pi pi-trash"
+            severity="danger"
+            outlined
+            size="small"
+            tooltip="Delete"
+            loading={deleting === row.id}
+            onClick={() => onDelete(row)}
+          />
+        </>
+      ) : null}
     </div>
   );
 }
@@ -70,6 +76,8 @@ function ActionButtons({ row, onView, onEdit, onDelete, deleting }) {
 export default function RfqsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const role = useSelector(selectRole);
+  const isAdmin = role === "ADMIN";
   const [deletingId, setDeletingId] = useState(null);
 
   const { postData: deleteRfq } = useMutationPost({
@@ -81,7 +89,7 @@ export default function RfqsPage() {
     eventType: "FABNET_LIST_RFQS",
     url: "/rfqs",
     enabled: true,
-    queryKey: ["rfqs", "list"],
+    queryKey: ["rfqs", "list", role || "unknown"],
     select: (result) => unwrapApiData(result) ?? [],
   });
 
@@ -130,15 +138,21 @@ export default function RfqsPage() {
     <div>
       <div className="fn-page-header">
         <div>
-          <h1 className="fn-page-title">RFQs</h1>
-          <p className="fn-page-subtitle mb-0">Create and track requests for quotation.</p>
+          <h1 className="fn-page-title">{isAdmin ? "RFQs" : "My RFQs"}</h1>
+          <p className="fn-page-subtitle mb-0">
+            {isAdmin
+              ? "Create and track requests for quotation."
+              : "RFQs you have been invited to quote on."}
+          </p>
         </div>
-        <KButton
-          type="button"
-          label="Create RFQ"
-          icon="pi pi-plus"
-          onClick={() => navigate("/dashboard/rfqs/add")}
-        />
+        {isAdmin ? (
+          <KButton
+            type="button"
+            label="Create RFQ"
+            icon="pi pi-plus"
+            onClick={() => navigate("/dashboard/rfqs/add")}
+          />
+        ) : null}
       </div>
 
       <div className="fn-panel">
@@ -147,7 +161,11 @@ export default function RfqsPage() {
             value={rows}
             paginator
             rows={10}
-            emptyMessage="No RFQs yet. Create your first request for quotation."
+            emptyMessage={
+              isAdmin
+                ? "No RFQs yet. Create your first request for quotation."
+                : "No RFQ invitations yet."
+            }
             className="fn-data-table"
           >
             <KColumn field="srNo" header="#" style={{ width: "60px" }} />
@@ -155,7 +173,7 @@ export default function RfqsPage() {
             <KColumn field="title" header="Title" sortable />
             <KColumn field="clientProjectName" header="Client / project" />
             <KColumn field="quoteDueDate" header="Quote due" />
-            <KColumn field="requestedBy" header="Requested by" />
+            {isAdmin ? <KColumn field="requestedBy" header="Requested by" /> : null}
             <KColumn
               field="status"
               header="Status"
@@ -166,13 +184,16 @@ export default function RfqsPage() {
                 />
               )}
             />
-            <KColumn field="inviteCount" header="Invites" style={{ width: "90px" }} />
+            {isAdmin ? (
+              <KColumn field="inviteCount" header="Invites" style={{ width: "90px" }} />
+            ) : null}
             <KColumn
               header="Actions"
-              style={{ width: "140px" }}
+              style={{ width: isAdmin ? "140px" : "80px" }}
               body={(row) => (
                 <ActionButtons
                   row={row}
+                  isAdmin={isAdmin}
                   onView={handleView}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
