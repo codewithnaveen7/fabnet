@@ -5,7 +5,7 @@ const {
   assertActiveServiceIds,
   resolveServiceIdsByNames,
 } = require('./serviceService');
-const { sendRfqInviteEmails } = require('./rfqMailService');
+const { sendRfqInviteEmails, sendSupplierQuoteNotification } = require('./rfqMailService');
 
 const rfqDetailSelect = {
   id: true,
@@ -64,8 +64,38 @@ const rfqDetailSelect = {
           contactPerson: true,
           itarRegistered: true,
           user: { select: { email: true, status: true } },
+          services: {
+            select: {
+              serviceId: true,
+              service: { select: { id: true, name: true } },
+            },
+          },
         },
       },
+    },
+  },
+  quotes: {
+    select: {
+      id: true,
+      rfqId: true,
+      supplierId: true,
+      serviceId: true,
+      price: true,
+      updatedAt: true,
+      supplier: { select: { id: true, companyName: true } },
+      service: { select: { id: true, name: true } },
+    },
+  },
+  awards: {
+    select: {
+      id: true,
+      rfqId: true,
+      serviceId: true,
+      supplierId: true,
+      awardedAt: true,
+      awardedById: true,
+      supplier: { select: { id: true, companyName: true } },
+      service: { select: { id: true, name: true } },
     },
   },
 };
@@ -218,14 +248,18 @@ async function assertSupplierCanAccessRfq(rfqId, userId) {
   return supplierId;
 }
 
-function sanitizeRfqForSupplier(rfq) {
+function sanitizeRfqForSupplier(rfq, supplierId, quotableServiceIds = []) {
   if (!rfq) return rfq;
-  const { targetBudgetaryPrice, invites, ...rest } = rfq;
+  const { targetBudgetaryPrice, invites, awards, quotes, ...rest } = rfq;
   return {
     ...rest,
-    // Hide internal budget and other invitees from suppliers
+    // Hide internal budget, other invitees, and awards from suppliers
     targetBudgetaryPrice: undefined,
     invites: undefined,
+    awards: undefined,
+    supplierId,
+    quotableServiceIds,
+    quotes: (quotes || []).filter((q) => q.supplierId === supplierId),
   };
 }
 
@@ -270,8 +304,14 @@ async function getRfqById(id, user = null) {
   if (!rfq) throw ApiError.notFound('RFQ not found');
 
   if (user?.role === 'SUPPLIER') {
-    await assertSupplierCanAccessRfq(id, user.id);
-    return sanitizeRfqForSupplier(rfq);
+    const supplierId = await assertSupplierCanAccessRfq(id, user.id);
+    const rfqServiceIds = new Set((rfq.processServices || []).map((p) => p.serviceId));
+    const supplierServices = await prisma.supplierService.findMany({
+      where: { supplierId, serviceId: { in: [...rfqServiceIds] } },
+      select: { serviceId: true },
+    });
+    const quotableServiceIds = supplierServices.map((s) => s.serviceId);
+    return sanitizeRfqForSupplier(rfq, supplierId, quotableServiceIds);
   }
 
   return rfq;
@@ -611,6 +651,180 @@ async function deleteRfq(id) {
   return { id };
 }
 
+function parseQuotePrice(value) {
+  if (value === '' || value == null) throw ApiError.badRequest('Price is required');
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) throw ApiError.badRequest('Invalid price');
+  return n;
+}
+
+async function assertQuoteEligibility(rfqId, supplierId, serviceId) {
+  const invite = await prisma.rfqInvite.findFirst({
+    where: { rfqId, supplierId, included: true },
+    select: { id: true },
+  });
+  if (!invite) throw ApiError.badRequest('Supplier is not invited to this RFQ');
+
+  const processLink = await prisma.rfqProcessService.findFirst({
+    where: { rfqId, serviceId },
+    select: { id: true },
+  });
+  if (!processLink) throw ApiError.badRequest('Service is not a process category on this RFQ');
+
+  const supplierService = await prisma.supplierService.findFirst({
+    where: { supplierId, serviceId },
+    select: { id: true },
+  });
+  if (!supplierService) {
+    throw ApiError.badRequest('Supplier does not offer this service');
+  }
+}
+
+async function upsertQuote(payload, user) {
+  const { rfqId, serviceId, price } = payload || {};
+  if (!rfqId) throw ApiError.badRequest('RFQ id is required');
+  if (!serviceId) throw ApiError.badRequest('Service id is required');
+
+  const rfq = await prisma.rfq.findUnique({
+    where: { id: rfqId },
+    select: {
+      id: true,
+      status: true,
+      rfqNumber: true,
+      title: true,
+      currency: true,
+    },
+  });
+  if (!rfq) throw ApiError.notFound('RFQ not found');
+
+  let supplierId;
+  if (user.role === 'SUPPLIER') {
+    supplierId = await assertSupplierCanAccessRfq(rfqId, user.id);
+  } else if (user.role === 'ADMIN') {
+    supplierId = payload.supplierId;
+    if (!supplierId) throw ApiError.badRequest('Supplier id is required');
+  } else {
+    throw ApiError.forbidden('Not allowed');
+  }
+
+  await assertQuoteEligibility(rfqId, supplierId, serviceId);
+  const parsedPrice = parseQuotePrice(price);
+
+  const quote = await prisma.rfqQuote.upsert({
+    where: {
+      rfqId_supplierId_serviceId: { rfqId, supplierId, serviceId },
+    },
+    create: { rfqId, supplierId, serviceId, price: parsedPrice },
+    update: { price: parsedPrice },
+    select: {
+      id: true,
+      rfqId: true,
+      supplierId: true,
+      serviceId: true,
+      price: true,
+      updatedAt: true,
+      supplier: {
+        select: {
+          id: true,
+          companyName: true,
+          user: { select: { email: true } },
+        },
+      },
+      service: { select: { id: true, name: true } },
+    },
+  });
+
+  if (rfq.status === 'SENT' || rfq.status === 'DRAFT') {
+    await prisma.rfq.update({
+      where: { id: rfqId },
+      data: { status: 'QUOTES_RECEIVED' },
+    });
+  }
+
+  // Notify FabNet inbox only when the supplier themselves quotes (not admin edits)
+  if (user.role === 'SUPPLIER') {
+    await sendSupplierQuoteNotification({
+      rfq,
+      quote,
+      supplierEmail: quote.supplier?.user?.email || user.email,
+    });
+  }
+
+  return quote;
+}
+
+async function setAward(payload, user) {
+  if (user.role !== 'ADMIN') throw ApiError.forbidden('Admin only');
+
+  const { rfqId, serviceId, supplierId } = payload || {};
+  if (!rfqId) throw ApiError.badRequest('RFQ id is required');
+  if (!serviceId) throw ApiError.badRequest('Service id is required');
+  if (!supplierId) throw ApiError.badRequest('Supplier id is required');
+
+  const rfq = await prisma.rfq.findUnique({
+    where: { id: rfqId },
+    select: {
+      id: true,
+      processServices: { select: { serviceId: true } },
+    },
+  });
+  if (!rfq) throw ApiError.notFound('RFQ not found');
+
+  const onRfq = (rfq.processServices || []).some((p) => p.serviceId === serviceId);
+  if (!onRfq) throw ApiError.badRequest('Service is not a process category on this RFQ');
+
+  const quote = await prisma.rfqQuote.findUnique({
+    where: {
+      rfqId_supplierId_serviceId: { rfqId, supplierId, serviceId },
+    },
+    select: { id: true },
+  });
+  if (!quote) throw ApiError.badRequest('Supplier has no quote for this category');
+
+  const award = await prisma.rfqAward.upsert({
+    where: { rfqId_serviceId: { rfqId, serviceId } },
+    create: {
+      rfqId,
+      serviceId,
+      supplierId,
+      awardedById: user.id,
+      awardedAt: new Date(),
+    },
+    update: {
+      supplierId,
+      awardedById: user.id,
+      awardedAt: new Date(),
+    },
+    select: {
+      id: true,
+      rfqId: true,
+      serviceId: true,
+      supplierId: true,
+      awardedAt: true,
+      awardedById: true,
+      supplier: { select: { id: true, companyName: true } },
+      service: { select: { id: true, name: true } },
+    },
+  });
+
+  const processIds = (rfq.processServices || []).map((p) => p.serviceId);
+  if (processIds.length) {
+    const awards = await prisma.rfqAward.findMany({
+      where: { rfqId, serviceId: { in: processIds } },
+      select: { serviceId: true },
+    });
+    const awardedIds = new Set(awards.map((a) => a.serviceId));
+    if (processIds.every((sid) => awardedIds.has(sid))) {
+      await prisma.rfq.update({
+        where: { id: rfqId },
+        data: { status: 'AWARDED' },
+      });
+    }
+  }
+
+  return award;
+}
+
 module.exports = {
   listRfqs,
   getRfqById,
@@ -620,4 +834,6 @@ module.exports = {
   suggestSuppliers,
   getFileDownloadUrl,
   nextRfqNumber,
+  upsertQuote,
+  setAward,
 };

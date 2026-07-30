@@ -48,6 +48,7 @@ model User {
 
   supplierProfile SupplierProfile?
   requestedRfqs   Rfq[]
+  rfqAwards       RfqAward[]
 
   @@map("users")
 }
@@ -73,6 +74,8 @@ model SupplierProfile {
   certifications SupplierCertification[]
   documents      SupplierDocument[]
   rfqInvites     RfqInvite[]
+  rfqQuotes      RfqQuote[]
+  rfqAwards      RfqAward[]
 
   @@map("supplier_profiles")
 }
@@ -87,6 +90,8 @@ model Service {
 
   suppliers    SupplierService[]
   rfqProcesses RfqProcessService[]
+  rfqQuotes    RfqQuote[]
+  rfqAwards    RfqAward[]
 
   @@map("services")
 }
@@ -185,6 +190,8 @@ model Rfq {
   processServices RfqProcessService[]
   documents       RfqDocument[]
   invites         RfqInvite[]
+  quotes          RfqQuote[]
+  awards          RfqAward[]
 
   @@index([status])
   @@index([quoteDueDate])
@@ -230,4 +237,39 @@ model RfqInvite {
 
   @@unique([rfqId, supplierId])
   @@map("rfq_invites")
+}
+
+model RfqQuote {
+  id         String   @id @default(uuid()) @db.Char(36)
+  rfqId      String   @map("rfq_id") @db.Char(36)
+  supplierId String   @map("supplier_id") @db.Char(36)
+  serviceId  String   @map("service_id") @db.Char(36)
+  price      Decimal  @db.Decimal(14, 2)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  rfq      Rfq             @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  supplier SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  service  Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([rfqId, supplierId, serviceId])
+  @@index([rfqId, serviceId])
+  @@map("rfq_quotes")
+}
+
+model RfqAward {
+  id          String   @id @default(uuid()) @db.Char(36)
+  rfqId       String   @map("rfq_id") @db.Char(36)
+  serviceId   String   @map("service_id") @db.Char(36)
+  supplierId  String   @map("supplier_id") @db.Char(36)
+  awardedById String   @map("awarded_by_id") @db.Char(36)
+  awardedAt   DateTime @default(now()) @map("awarded_at")
+
+  rfq       Rfq             @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  service   Service         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  supplier  SupplierProfile @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  awardedBy User            @relation(fields: [awardedById], references: [id])
+
+  @@unique([rfqId, serviceId])
+  @@map("rfq_awards")
 }

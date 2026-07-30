@@ -594,10 +594,10 @@
 .fn-form-section {
   background: var(--fn-card);
   border: 1px solid var(--fn-border);
-  border-radius: var(--fn-radius);
+  border-radius: 12px;
   box-shadow: var(--fn-shadow);
-  /* visible so Dropdown/MultiSelect panels are not clipped and can close on outside click */
-  overflow: visible;
+  /* clip header/body to the same radius on all four corners */
+  overflow: hidden;
 }
 
 .fn-detail-value {
@@ -1050,6 +1050,190 @@
   margin-top: 0.4rem;
   color: #64748b;
   font-size: 0.8rem;
+}
+
+.fn-quote-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.fn-quote-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  background: #f8fafc;
+  border: 1px solid var(--fn-border);
+  border-radius: 10px;
+}
+
+.fn-quote-tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--fn-muted);
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  line-height: 1.2;
+}
+
+.fn-quote-tab:hover {
+  color: var(--fn-text);
+  background: #fff;
+}
+
+.fn-quote-tab.is-active {
+  background: #fff;
+  color: #1d4ed8;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.fn-quote-tab-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #15803d;
+  background: #dcfce7;
+  border-radius: 999px;
+  padding: 0.15rem 0.4rem;
+}
+
+.fn-quote-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--fn-border);
+  color: var(--fn-muted);
+  font-size: 0.875rem;
+}
+
+.fn-quote-status.is-awarded {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.fn-quote-status .pi {
+  font-size: 0.95rem;
+}
+
+.fn-quote-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.fn-quote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: 1px solid var(--fn-border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: #fff;
+}
+
+.fn-quote-row.is-selected {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.fn-quote-row-meta {
+  flex: 1 1 14rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fn-quote-row-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fn-quote-row-name {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--fn-text);
+  line-height: 1.3;
+}
+
+.fn-quote-row-sub {
+  font-size: 0.8rem;
+  color: var(--fn-muted);
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.fn-quote-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.55rem;
+  margin-left: auto;
+}
+
+.fn-quote-price-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 9.5rem;
+}
+
+.fn-quote-price-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--fn-muted);
+}
+
+.fn-quote-row-actions .p-inputnumber,
+.fn-quote-price-field .p-inputnumber {
+  width: 10.5rem;
+}
+
+.fn-quote-row-actions .p-inputnumber-input,
+.fn-quote-price-field .p-inputnumber-input {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .fn-quote-row {
+    align-items: stretch;
+  }
+
+  .fn-quote-row-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .fn-quote-price-field {
+    flex: 1 1 auto;
+  }
+
+  .fn-quote-row-actions .p-inputnumber,
+  .fn-quote-price-field .p-inputnumber {
+    width: 100%;
+  }
 }
 
 .fn-services-dialog .p-dialog-content {

@@ -215,7 +215,67 @@ async function sendRfqInviteEmails(rfq) {
   return summary;
 }
 
+/**
+ * Notify FabNet when a supplier submits / updates a quote price.
+ */
+async function sendSupplierQuoteNotification({ rfq, quote, supplierEmail }) {
+  if (!config.mail.isConfigured) {
+    logger.warn('Supplier quote notification skipped: Azure mail env is not configured');
+    return { sent: false, reason: 'mail_not_configured' };
+  }
+
+  const toEmail = config.mail.quoteNotifyEmail || 'info@fabnetsystems.com';
+  const companyName = quote.supplier?.companyName || 'Supplier';
+  const serviceName = quote.service?.name || '—';
+  const currency = rfq.currency || 'USD';
+  const priceLabel = `${currency} ${quote.price}`;
+
+  const body = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#0f172a;line-height:1.5;">
+      <p>A supplier has submitted a quotation on FabNet.</p>
+      ${section(
+        'Quote details',
+        [
+          row('RFQ number', display(rfq.rfqNumber)),
+          row('RFQ title', display(rfq.title)),
+          row('Supplier', display(companyName)),
+          row('Supplier email', display(supplierEmail)),
+          row('Category', display(serviceName)),
+          row('Quoted price', display(priceLabel)),
+          row('Quoted at', display(formatDate(quote.updatedAt || new Date()))),
+        ].join('')
+      )}
+      <p style="margin-top:24px;color:#64748b;font-size:13px;">Open the RFQ in FabNet to review and select a winner.</p>
+    </div>
+  `.trim();
+
+  try {
+    await sendMail({
+      tenantId: config.mail.tenantId,
+      clientId: config.mail.clientId,
+      clientSecret: config.mail.clientSecret,
+      fromEmail: config.mail.fromEmail,
+      toEmail,
+      subject: `Quote received — ${rfq.rfqNumber}: ${companyName} (${serviceName})`,
+      body,
+      bodyType: 'HTML',
+    });
+    logger.info(
+      { rfqId: rfq.id, toEmail, supplierId: quote.supplierId, serviceId: quote.serviceId },
+      'Supplier quote notification email sent'
+    );
+    return { sent: true, toEmail };
+  } catch (err) {
+    logger.error(
+      { err, rfqId: rfq.id, toEmail, supplierId: quote.supplierId },
+      'Supplier quote notification email failed'
+    );
+    return { sent: false, reason: err.message };
+  }
+}
+
 module.exports = {
   sendRfqInviteEmails,
+  sendSupplierQuoteNotification,
   buildRfqInviteHtml,
 };

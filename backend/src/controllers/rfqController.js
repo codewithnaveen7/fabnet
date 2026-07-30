@@ -36,6 +36,16 @@ async function deleteRfq(req, res) {
   res.json({ success: true, data: result });
 }
 
+async function upsertQuote(req, res) {
+  const quote = await rfqService.upsertQuote(req.body, req.user);
+  res.json({ success: true, data: quote });
+}
+
+async function setAward(req, res) {
+  const award = await rfqService.setAward(req.body, req.user);
+  res.json({ success: true, data: award });
+}
+
 module.exports = {
   listRfqs,
   getRfq,
@@ -44,4 +54,6 @@ module.exports = {
   deleteRfq,
   suggestSuppliers,
   getFileUrl,
+  upsertQuote,
+  setAward,
 };

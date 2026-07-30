@@ -137,5 +137,30 @@ router.post(
   validate,
   asyncHandler(rfqController.suggestSuppliers)
 );
+router.post(
+  '/upsert-quote',
+  parseEventBody,
+  requireRole('ADMIN', 'SUPPLIER'),
+  [
+    body('rfqId').notEmpty(),
+    body('serviceId').notEmpty(),
+    body('price').notEmpty(),
+    body('supplierId').optional({ nullable: true }).isUUID(),
+  ],
+  validate,
+  asyncHandler(rfqController.upsertQuote)
+);
+router.post(
+  '/set-award',
+  parseEventBody,
+  requireRole('ADMIN'),
+  [
+    body('rfqId').notEmpty(),
+    body('serviceId').notEmpty(),
+    body('supplierId').notEmpty(),
+  ],
+  validate,
+  asyncHandler(rfqController.setAward)
+);
 
 module.exports = router;

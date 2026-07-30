@@ -46,6 +46,7 @@ config.mail = {
   clientId: process.env.AZURE_CLIENT_ID || '',
   clientSecret: process.env.AZURE_CLIENT_SECRET || '',
   fromEmail: process.env.FROM_EMAIL || '',
+  quoteNotifyEmail: process.env.QUOTE_NOTIFY_EMAIL || 'info@fabnetsystems.com',
 };
 
 config.mail.isConfigured = Boolean(
