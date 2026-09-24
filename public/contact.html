@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Contact &amp; RFQ Portal | FabNet UAE</title>
+  <meta name="description" content="Submit technical requirements and Requests for Quotation (RFQ) to FabNet UAE's aerospace and defense manufacturing engineering desk."/>
+  <link rel="canonical" href="https://fabnetsystems.com/contact.html"/>
+  <meta property="og:title" content="Contact &amp; RFQ Portal | FabNet UAE"/>
+  <meta property="og:description" content="Submit technical requirements and Requests for Quotation (RFQ) directly to FabNet UAE."/>
+  <meta property="og:url" content="https://fabnetsystems.com/contact.html"/>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#121414",
+            "charcoal-deep": "#0D0D0D",
+            "technical-gray": "#1A1A1A",
+            "border-gray": "#333333",
+            "industrial-red": "#D9052A",
+            "on-surface-variant": "#c4c7c7"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <script src="/js/main.js" defer></script>
+</head>
+<body class="bg-background text-on-background selection:bg-industrial-red/30">
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 header-glass">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 flex justify-between items-center h-20">
+      <div class="flex items-center gap-10">
+        <a class="font-headline-lg text-2xl tracking-tighter text-white flex items-center gap-3 no-underline" href="/">
+          <span class="w-3 h-3 bg-industrial-red inline-block"></span>
+          <span>FABNET <span class="text-neutral-400 font-light text-lg">UAE</span></span>
+        </a>
+        <nav class="hidden lg:flex gap-8 items-center">
+          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/capabilities.html">Capabilities</a>
+          <a class="nav-link" href="/sectors.html">Sectors</a>
+          <a class="nav-link" href="/about.html">About Us</a>
+          <a class="nav-link active" href="/contact.html">Contact</a>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a class="hidden sm:inline-flex btn-outline text-xs py-2 px-4" href="https://panel.fabnetsystems.com">
+          <span class="material-symbols-outlined text-[16px]">lock</span>
+          PORTAL LOGIN
+        </a>
+        <a class="btn-red py-2.5 px-6" href="/contact.html">ENQUIRE</a>
+        <button id="mobile-menu-toggle" aria-label="Open menu" class="lg:hidden p-2 text-neutral-300 hover:text-white">
+          <span class="material-symbols-outlined text-3xl">menu</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-menu" class="fixed inset-y-0 right-0 z-50 w-80 bg-neutral-950 border-l border-neutral-800 p-8 flex flex-col justify-between shadow-2xl lg:hidden">
+    <div>
+      <div class="flex justify-between items-center pb-6 border-b border-neutral-800 mb-8">
+        <div class="font-mono text-sm tracking-widest text-industrial-red">NAVIGATION</div>
+        <button id="mobile-menu-close" aria-label="Close menu" class="text-neutral-400 hover:text-white">
+          <span class="material-symbols-outlined text-2xl">close</span>
+        </button>
+      </div>
+      <nav class="flex flex-col space-y-5">
+        <a class="nav-link text-base" href="/">Home</a>
+        <a class="nav-link text-base" href="/capabilities.html">Capabilities</a>
+        <a class="nav-link text-base" href="/sectors.html">Sectors</a>
+        <a class="nav-link text-base" href="/about.html">About Us</a>
+        <a class="nav-link text-base active" href="/contact.html">Contact &amp; RFQ</a>
+      </nav>
+    </div>
+    <div class="space-y-4 pt-6 border-t border-neutral-800">
+      <a class="btn-red w-full text-center py-3" href="/contact.html">SUBMIT RFQ</a>
+      <a class="btn-outline w-full text-center py-3" href="https://panel.fabnetsystems.com">CLIENT PORTAL</a>
+    </div>
+  </div>
+
+  <main class="pt-24">
+    <!-- Hero Header -->
+    <section class="relative h-[400px] flex items-center overflow-hidden border-b border-border-gray">
+      <div class="relative z-10 px-6 md:px-12 max-w-[1440px] mx-auto w-full">
+        <div class="max-w-3xl reveal-item">
+          <span class="font-label-caps text-industrial-red mb-3 block">STRATEGIC DEFENSE LIAISON</span>
+          <h1 class="font-headline-xl text-white text-3xl md:text-5xl mb-4">Connect with Precision</h1>
+          <p class="font-body-lg text-neutral-300 max-w-2xl">
+            Facilitating seamless aerospace and defense procurement through advanced technical liaison and sovereign supply chain excellence in Abu Dhabi, UAE.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RFQ Form & Details Grid -->
+    <section class="max-w-[1440px] mx-auto px-6 md:px-12 py-16 grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+      <!-- RFQ Form (7 Cols) -->
+      <div class="lg:col-span-7 reveal-item" id="rfq">
+        <div class="bg-technical-gray border border-border-gray p-8 md:p-10 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1.5 h-full bg-industrial-red"></div>
+          <div class="mb-8">
+            <span class="font-label-caps text-xs text-industrial-red mb-1 block">CONFIDENTIAL TRANSMISSION</span>
+            <h2 class="font-headline-lg text-white text-2xl mb-2">Technical Request for Quotation (RFQ)</h2>
+            <p class="font-body-sm text-neutral-400">Submit your CAD specifications or technical bills of materials for immediate evaluation under non-disclosure protocols.</p>
+          </div>
+
+          <form id="rfq-form" class="rfq-form space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="org-name" class="font-label-caps text-xs text-neutral-400 block mb-2">FULL NAME *</label>
+                <input id="org-name" required class="input-technical" placeholder="Eng. Khalid Al Mansoori" type="text"/>
+              </div>
+              <div>
+                <label for="org-entity" class="font-label-caps text-xs text-neutral-400 block mb-2">ORGANIZATION / PRIME *</label>
+                <input id="org-entity" required class="input-technical" placeholder="e.g. MOD UAE, EDGE Group, Tawazun" type="text"/>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="email" class="font-label-caps text-xs text-neutral-400 block mb-2">OFFICIAL EMAIL *</label>
+                <input id="email" required class="input-technical" placeholder="name@entity.ae" type="email"/>
+              </div>
+              <div>
+                <label for="phone" class="font-label-caps text-xs text-neutral-400 block mb-2">CONTACT PHONE *</label>
+                <input id="phone" required class="input-technical" placeholder="+971 50 000 0000" type="tel"/>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="inquiry-type" class="font-label-caps text-xs text-neutral-400 block mb-2">CAPABILITY DOMAIN</label>
+                <select id="inquiry-type" class="input-technical cursor-pointer">
+                  <option>Precision 5-Axis CNC Machining</option>
+                  <option>Composite Aerostructures Manufacturing</option>
+                  <option>Sheet Metal Fabrication &amp; Assembly</option>
+                  <option>Space / Avionics Microwave Enclosures</option>
+                  <option>Sovereign Supply Chain &amp; Logistics</option>
+                  <option>Full Contract Turnkey Manufacturing</option>
+                </select>
+              </div>
+              <div>
+                <label for="target-date" class="font-label-caps text-xs text-neutral-400 block mb-2">TARGET DELIVERY TIMELINE</label>
+                <select id="target-date" class="input-technical cursor-pointer">
+                  <option>Immediate / AOG (Under 2 Weeks)</option>
+                  <option>Rapid Prototype (3-6 Weeks)</option>
+                  <option>Series Production (Quarterly Batches)</option>
+                  <option>Long-Term Program Contract (1-3 Years)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="spec-details" class="font-label-caps text-xs text-neutral-400 block mb-2">TECHNICAL REQUIREMENTS &amp; TOLERANCES *</label>
+              <textarea id="spec-details" required rows="4" class="input-technical" placeholder="Detail part numbers, aerospace material grades (e.g., Inconel 718, Ti-6Al-4V), surface finishing requirements, and QA standards..."></textarea>
+            </div>
+
+            <div class="p-4 bg-black/50 border border-border-gray flex items-start gap-3">
+              <input id="nda-agree" required type="checkbox" class="mt-1 w-4 h-4 text-industrial-red bg-neutral-900 border-neutral-700 rounded focus:ring-industrial-red"/>
+              <label for="nda-agree" class="text-xs text-neutral-400 leading-relaxed cursor-pointer">
+                I confirm compliance with UAE Federal Law No. (6) of 2009 regarding defense industry regulation and UAE export control policies. Technical data transmitted will be treated under strict non-disclosure.
+              </label>
+            </div>
+
+            <button type="submit" class="btn-red w-full py-4 tracking-widest text-sm flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">send</span>
+              TRANSMIT ENCRYPTED RFQ
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Status & Headquarters (5 Cols) -->
+      <div class="lg:col-span-5 space-y-6 reveal-item">
+
+        <!-- Operations Status Indicator -->
+        <div class="bg-technical-gray border border-border-gray p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="font-label-caps text-xs text-neutral-400 block">DEFENSE INDUSTRIAL HUB</span>
+              <div class="flex items-center mt-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 status-dot-pulse mr-2"></span>
+                <span class="font-label-caps text-xs text-emerald-400 font-bold">OPERATIONS NOMINAL &bull; ICAD III</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="font-label-caps text-xs text-neutral-500 block">DESK REF</span>
+              <span class="font-mono text-xs text-white">AUH_LIAISON_01</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Headquarters Location Card -->
+        <div class="bg-technical-gray border border-border-gray overflow-hidden">
+          <div class="relative h-48 w-full bg-neutral-950">
+            <img class="w-full h-full object-cover grayscale contrast-125 opacity-50" alt="Abu Dhabi Map" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-V1a_gco7rq21vT1BUwj9Xlx4HhzZthnZLkc2oaoYZUa2OjUCbRk7CJ-X-YNQwTPe7KhMk5_Jo2wzSXHeDhYGUxI8lkNyMufwHrlRU9M9-a9Ne9a5xwAtqy5cMX2m8qsEvEFs-1wMFVbksuSYzPt5HyZvz5nooO6jlzrtEQSM0Pconq9vqkRAdNR3bWCZQWVgq2466FcoRG6_XAtKIdIgyLIuH-LWT6MiXORpjk5eOQyYw0o7O97d_u1nsfzOALENBCGTzgy-pMM"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-technical-gray via-transparent to-transparent"></div>
+            <div class="absolute bottom-4 left-6">
+              <span class="font-label-caps bg-industrial-red text-white text-[10px] px-2.5 py-1">SOVEREIGN MANUFACTURING HUB</span>
+            </div>
+          </div>
+          <div class="p-6">
+            <h3 class="font-headline-md text-white text-xl mb-4">Abu Dhabi Headquarters</h3>
+            <div class="space-y-4 text-sm text-neutral-300">
+              <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-industrial-red text-lg">location_on</span>
+                <div>
+                  <strong class="text-white">FabNet Systems UAE</strong><br/>
+                  Industrial City of Abu Dhabi (ICAD III)<br/>
+                  Sector 14, Plot 8B, Abu Dhabi, UAE
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-industrial-red text-lg">schedule</span>
+                <div>Mon &ndash; Fri: 08:00 &ndash; 18:00 GST &bull; 24/7 Production Operations</div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-industrial-red text-lg">mail</span>
+                <div>Official RFQ: <a href="mailto:rfq@fabnetsystems.com" class="text-industrial-red hover:underline">rfq@fabnetsystems.com</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct Contact Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-technical-gray border border-border-gray p-6 text-center hover:border-industrial-red transition-colors">
+            <span class="material-symbols-outlined text-industrial-red text-3xl mb-2">call</span>
+            <div class="font-label-caps text-xs text-white">DIRECT LINE</div>
+            <div class="font-mono text-sm text-neutral-300 mt-1">+971 2 550 4912</div>
+          </div>
+          <div class="bg-technical-gray border border-border-gray p-6 text-center hover:border-industrial-red transition-colors">
+            <span class="material-symbols-outlined text-emerald-400 text-3xl mb-2">encrypted</span>
+            <div class="font-label-caps text-xs text-white">SECURE COMM</div>
+            <div class="font-mono text-sm text-emerald-400 mt-1">PGP 4096-BIT ACTIVE</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-charcoal-deep border-t border-border-gray pt-16 pb-8">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div>
+        <a class="font-headline-md text-xl text-white mb-4 block no-underline" href="/">FABNET UAE</a>
+        <p class="font-body-sm text-neutral-400 mb-6">High-precision aerospace &amp; defense manufacturing in Abu Dhabi. Built for sovereign excellence.</p>
+      </div>
+      <div>
+        <h5 class="font-label-caps text-industrial-red mb-4">PAGES</h5>
+        <ul class="space-y-3 p-0 list-none text-sm">
+          <li><a class="text-neutral-400 hover:text-white" href="/">Home</a></li>
+          <li><a class="text-neutral-400 hover:text-white" href="/capabilities.html">Capabilities</a></li>
+          <li><a class="text-neutral-400 hover:text-white" href="/sectors.html">Sectors</a></li>
+          <li><a class="text-neutral-400 hover:text-white" href="/about.html">About Us</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="font-label-caps text-industrial-red mb-4">STANDARDS</h5>
+        <ul class="space-y-3 p-0 list-none text-sm text-neutral-400">
+          <li>AS9100D Certified</li>
+          <li>ISO 9001:2015 Registered</li>
+          <li>UAE Defense Base Compliant</li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="font-label-caps text-industrial-red mb-4">DIRECT ACCESS</h5>
+        <p class="font-body-sm text-neutral-400 mb-4">Email: <a href="mailto:rfq@fabnetsystems.com" class="text-industrial-red hover:underline">rfq@fabnetsystems.com</a></p>
+        <a class="btn-outline text-xs py-2 px-4 inline-flex" href="https://panel.fabnetsystems.com">CLIENT PORTAL</a>
+      </div>
+    </div>
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 pt-8 border-t border-border-gray flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
+      <p>&copy; 2026 FabNet Systems UAE. All rights reserved.</p>
+      <p class="font-mono">DOMAIN: FABNETSYSTEMS.COM</p>
+    </div>
+  </footer>
+
+</body>
+</html>

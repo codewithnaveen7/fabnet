@@ -64,5 +64,14 @@ services:
     ports:
       - "3001:8080"
 
+  website:
+    image: nginx:1.27-alpine
+    container_name: fabnet-website-dev
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+
 volumes:
   mysql_dev_data:

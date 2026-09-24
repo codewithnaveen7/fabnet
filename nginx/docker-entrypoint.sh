@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 
+export MAIN_DOMAIN="${MAIN_DOMAIN:-fabnetsystems.com}"
 export PANEL_DOMAIN="${PANEL_DOMAIN:-panel.fabnetsystems.com}"
 export API_DOMAIN="${API_DOMAIN:-api.fabnetsystems.com}"
 export CDN_DOMAIN="${CDN_DOMAIN:-cdn.fabnetsystems.com}"
@@ -8,7 +9,7 @@ export CDN_DOMAIN="${CDN_DOMAIN:-cdn.fabnetsystems.com}"
 render_template() {
   template="$1"
   output="$2"
-  envsubst '${PANEL_DOMAIN} ${API_DOMAIN} ${CDN_DOMAIN}' < "${template}" > "${output}"
+  envsubst '${MAIN_DOMAIN} ${PANEL_DOMAIN} ${API_DOMAIN} ${CDN_DOMAIN}' < "${template}" > "${output}"
 }
 
 mkdir -p /etc/nginx/conf.d

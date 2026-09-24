@@ -61,6 +61,8 @@ docker buildx build --platform "${PLATFORM}" \
   --push ./kdesigns
 
 echo "==> proxy: ${PROXY_IMAGE}"
+mkdir -p ./nginx/public
+cp -r ./public/* ./nginx/public/
 docker buildx build --platform "${PLATFORM}" \
   -f nginx/Dockerfile \
   -t "${PROXY_IMAGE}" \

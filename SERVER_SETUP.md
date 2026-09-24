@@ -72,6 +72,7 @@ Server par `/opt/fabnet/` (ya apna path):
 /opt/fabnet/
 ├── docker-compose.prod.pull.yml
 ├── .env
+├── public/                # Static public website (fabnetsystems.com)
 ├── backend/.env.production
 └── scripts/
     ├── server-setup.sh
@@ -84,11 +85,12 @@ Server par `/opt/fabnet/` (ya apna path):
 ```bash
 scp docker-compose.prod.pull.yml user@server:/opt/fabnet/
 scp .env user@server:/opt/fabnet/
+scp -r public user@server:/opt/fabnet/
 scp backend/.env.production user@server:/opt/fabnet/backend/
 scp scripts/server-setup.sh scripts/server-ssl-init.sh scripts/server-pull-up.sh scripts/reset-admin-password.sh user@server:/opt/fabnet/scripts/
 ```
 
-> DNS A records (`panel`, `api`, `cdn`) server IP par point karo **before** SSL step.
+> DNS A records (`@` for fabnetsystems.com, `panel`, `api`, `cdn`) server IP par point karo **before** SSL step.
 
 ---
 
@@ -104,6 +106,7 @@ DOCKER_REGISTRY=naveen2202
 IMAGE_TAG=latest
 
 # Domains + SSL (nginx proxy container handles routing + HTTPS)
+MAIN_DOMAIN=fabnetsystems.com
 PANEL_DOMAIN=panel.fabnetsystems.com
 API_DOMAIN=api.fabnetsystems.com
 CDN_DOMAIN=cdn.fabnetsystems.com

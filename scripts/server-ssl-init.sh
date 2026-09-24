@@ -13,6 +13,7 @@ if [[ -f .env ]]; then
   set +a
 fi
 
+MAIN_DOMAIN="${MAIN_DOMAIN:-fabnetsystems.com}"
 PANEL_DOMAIN="${PANEL_DOMAIN:-panel.fabnetsystems.com}"
 API_DOMAIN="${API_DOMAIN:-api.fabnetsystems.com}"
 CDN_DOMAIN="${CDN_DOMAIN:-cdn.fabnetsystems.com}"
@@ -42,6 +43,7 @@ request_cert() {
     -d "${domain}"
 }
 
+request_cert "${MAIN_DOMAIN}"
 request_cert "${PANEL_DOMAIN}"
 request_cert "${API_DOMAIN}"
 request_cert "${CDN_DOMAIN}"
@@ -51,6 +53,7 @@ docker compose -f "${COMPOSE_FILE}" up -d --force-recreate proxy
 
 echo ""
 echo "SSL enabled for:"
+echo "  https://${MAIN_DOMAIN}"
 echo "  https://${PANEL_DOMAIN}"
 echo "  https://${API_DOMAIN}"
 echo "  https://${CDN_DOMAIN}"

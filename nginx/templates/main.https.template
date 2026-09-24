@@ -1,0 +1,23 @@
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${MAIN_DOMAIN} www.${MAIN_DOMAIN};
+
+    ssl_certificate /etc/letsencrypt/live/${MAIN_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${MAIN_DOMAIN}/privkey.pem;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:10m;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    location / {
+        root /var/www/public;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        root /var/www/public;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+}

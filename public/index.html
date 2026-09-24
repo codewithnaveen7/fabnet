@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>FabNet UAE | Aerospace &amp; Defense Precision Manufacturing</title>
+  <meta name="description" content="FabNet UAE is a Tier-1 aerospace and defense manufacturing partner in Abu Dhabi, providing high-precision design, CNC machining, assembly, and composite fabrication."/>
+  <link rel="canonical" href="https://fabnetsystems.com/"/>
+  <meta property="og:title" content="FabNet UAE | Aerospace &amp; Defense Precision"/>
+  <meta property="og:description" content="Tier-1 defense manufacturing partner providing precision machining and assembly for sovereign entities across the UAE."/>
+  <meta property="og:url" content="https://fabnetsystems.com/"/>
+  <meta property="og:type" content="website"/>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#121414",
+            "charcoal-deep": "#0D0D0D",
+            "technical-gray": "#1A1A1A",
+            "border-gray": "#333333",
+            "industrial-red": "#D9052A",
+            "on-surface-variant": "#c4c7c7",
+            "on-tertiary-container": "#7b7a7a"
+          },
+          maxWidth: {
+            "container-max": "1440px"
+          },
+          spacing: {
+            "margin-desktop": "48px",
+            "gutter": "24px"
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <script src="/js/main.js" defer></script>
+</head>
+<body class="bg-background text-on-background selection:bg-industrial-red/30">
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 header-glass">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 flex justify-between items-center h-20">
+      <div class="flex items-center gap-10">
+        <a class="font-headline-lg text-2xl tracking-tighter text-white flex items-center gap-3 no-underline" href="/">
+          <span class="w-3 h-3 bg-industrial-red inline-block"></span>
+          <span>FABNET <span class="text-neutral-400 font-light text-lg">UAE</span></span>
+        </a>
+        <nav class="hidden lg:flex gap-8 items-center">
+          <a class="nav-link active" href="/">Home</a>
+          <a class="nav-link" href="/capabilities.html">Capabilities</a>
+          <a class="nav-link" href="/sectors.html">Sectors</a>
+          <a class="nav-link" href="/about.html">About Us</a>
+          <a class="nav-link" href="/contact.html">Contact</a>
+        </nav>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a class="hidden sm:inline-flex btn-outline text-xs py-2 px-4" href="https://panel.fabnetsystems.com" target="_blank" rel="noopener">
+          <span class="material-symbols-outlined text-[16px]">lock</span>
+          PORTAL LOGIN
+        </a>
+        <a class="btn-red py-2.5 px-6" href="/contact.html">ENQUIRE</a>
+        <button id="mobile-menu-toggle" aria-label="Open navigation menu" class="lg:hidden p-2 text-neutral-300 hover:text-white">
+          <span class="material-symbols-outlined text-3xl">menu</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-menu" class="fixed inset-y-0 right-0 z-50 w-80 bg-neutral-950 border-l border-neutral-800 p-8 flex flex-col justify-between shadow-2xl lg:hidden">
+    <div>
+      <div class="flex justify-between items-center pb-6 border-b border-neutral-800 mb-8">
+        <div class="font-mono text-sm tracking-widest text-industrial-red">NAVIGATION</div>
+        <button id="mobile-menu-close" aria-label="Close menu" class="text-neutral-400 hover:text-white">
+          <span class="material-symbols-outlined text-2xl">close</span>
+        </button>
+      </div>
+      <nav class="flex flex-col space-y-5">
+        <a class="nav-link text-base active" href="/">Home</a>
+        <a class="nav-link text-base" href="/capabilities.html">Capabilities</a>
+        <a class="nav-link text-base" href="/sectors.html">Sectors</a>
+        <a class="nav-link text-base" href="/about.html">About Us</a>
+        <a class="nav-link text-base" href="/contact.html">Contact &amp; RFQ</a>
+      </nav>
+    </div>
+    <div class="space-y-4 pt-6 border-t border-neutral-800">
+      <a class="btn-red w-full text-center py-3" href="/contact.html">SUBMIT RFQ</a>
+      <a class="btn-outline w-full text-center py-3" href="https://panel.fabnetsystems.com">CLIENT PORTAL</a>
+    </div>
+  </div>
+
+  <main class="pt-20">
+    <!-- Hero Section with Carousel -->
+    <section class="relative h-[90vh] min-h-[640px] flex items-center overflow-hidden" id="hero-carousel">
+      <!-- Slide 1 -->
+      <div class="carousel-slide active">
+        <div class="absolute inset-0 overflow-hidden">
+          <img alt="Aerospace Manufacturing" class="w-full h-full object-cover grayscale opacity-50 animate-ken-burns" src="https://lh3.googleusercontent.com/aida/AP1WRLvhEXOfkKQM-Mv43LKZvegiXMwX77ZNgjDsZqG_YjKwhIXiNUfORV0G7ogVh0oxuXseMEZS5N7b10MDtEGwB9AZHJ2kq-GVjg1krF06V8FYIJoO2-6ngu0BVWJpblGH7zEFtYfxJXYaS0i2ffY0a65gLuXTfzwlsTJiC6OvD1wYFm2NPZnscvsh9P44KDAjcpfMxUcxZ82K6_l18XBtZa-E3UOFr_-CDBLfGro3uK1GKHzDQAFd8kctMj8"/>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent"></div>
+        <div class="relative z-10 max-w-[1440px] mx-auto px-6 md:px-12 h-full flex items-center">
+          <div class="max-w-2xl">
+            <div class="mb-6 flex items-center gap-4">
+              <span class="w-12 h-[2px] bg-industrial-red"></span>
+              <span class="font-label-caps text-industrial-red tracking-[0.2em]">PRIME CONTRACTOR &bull; UAE</span>
+            </div>
+            <h1 class="font-headline-xl text-white mb-6">Engineering Excellence, <br/><span class="text-industrial-red">Delivered.</span></h1>
+            <p class="font-body-lg mb-10 text-neutral-300">FabNet UAE is a Tier-1 defense manufacturing partner, providing high-precision design, assembly, and fabrication services to sovereign entities across the Middle East.</p>
+            <div class="flex flex-wrap gap-4">
+              <a class="btn-red" href="/capabilities.html">
+                VIEW CAPABILITIES
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </a>
+              <a class="btn-outline" href="/about.html">ABOUT FABNET</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="carousel-slide">
+        <div class="absolute inset-0 overflow-hidden">
+          <img alt="Precision Fabrication" class="w-full h-full object-cover grayscale opacity-50 animate-ken-burns" src="https://lh3.googleusercontent.com/aida/AP1WRLtML80tFHij5VtGTfJ2CYpM04mnB8zAH9uHgl9UPAA69Kay0rS_wwGPGkyqz7SRKRcCaj1NjeqKG7KGaGp_gkuOjHkeCbQtoJo_bHcEQ2ZMV-9EPI5GJ3O_pamSURXLoDeDZ1FsRhNfGCuaR-HU49qhnIymolk66ZjNa9VYEzyyCWMM84fu5XLVDubo-O968BaiQD7hKRutoFy_c9OrRvAFMVm98sIaWdK9YzK5owmb-iWlDtJqBtDS7g"/>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent"></div>
+        <div class="relative z-10 max-w-[1440px] mx-auto px-6 md:px-12 h-full flex items-center">
+          <div class="max-w-2xl">
+            <div class="mb-6 flex items-center gap-4">
+              <span class="w-12 h-[2px] bg-industrial-red"></span>
+              <span class="font-label-caps text-industrial-red tracking-[0.2em]">PRECISION MANUFACTURING</span>
+            </div>
+            <h1 class="font-headline-xl text-white mb-6">Sovereign Aerospace <br/><span class="text-industrial-red">Capabilities.</span></h1>
+            <p class="font-body-lg mb-10 text-neutral-300">Empowering national defense through high-precision machining, advanced materials processing, and industry-leading quality standards.</p>
+            <div class="flex flex-wrap gap-4">
+              <a class="btn-red" href="/contact.html">
+                START AN RFQ
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </a>
+              <a class="btn-outline" href="/sectors.html">EXPLORE SECTORS</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="carousel-slide">
+        <div class="absolute inset-0 overflow-hidden">
+          <img alt="Defense Solutions" class="w-full h-full object-cover grayscale opacity-50 animate-ken-burns" src="https://lh3.googleusercontent.com/aida/AP1WRLvrcubnrHsrZA-MVHmZoDs7s10LJcy3FspKdmGeKQ_6PhyKBO6HjgcdlB3r4JNKc2TrWOYQUOcJ-GTCZrPeAh35xqY-4bXZHiz8SJqkyRvycw15o6a3UUu-HPZvQzIGG4Gc3t0jsWfOJR8dhwZfir_3QY2QgHaz1zNEqLY9DnCUKKKiRhMU5Db4cCAQz2OSYxnt5UEaxZ8GUUW_XcoC9fUmRPtGMgSaKv_APHuBcVI33RNlgPEB5fxOJR0"/>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent"></div>
+        <div class="relative z-10 max-w-[1440px] mx-auto px-6 md:px-12 h-full flex items-center">
+          <div class="max-w-2xl">
+            <div class="mb-6 flex items-center gap-4">
+              <span class="w-12 h-[2px] bg-industrial-red"></span>
+              <span class="font-label-caps text-industrial-red tracking-[0.2em]">STRATEGIC DEFENSE</span>
+            </div>
+            <h1 class="font-headline-xl text-white mb-6">Integrated Tactical <br/><span class="text-industrial-red">Solutions.</span></h1>
+            <p class="font-body-lg mb-10 text-neutral-300">A mission-ready ecosystem engineered for operational readiness and sovereign security across multi-domain environments.</p>
+            <div class="flex flex-wrap gap-4">
+              <a class="btn-red" href="/capabilities.html">
+                EXPLORE SOLUTIONS
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carousel Indicators -->
+      <div class="absolute bottom-10 right-6 md:right-12 z-20 flex gap-3">
+        <button class="carousel-dot active" data-index="0" aria-label="Slide 1"></button>
+        <button class="carousel-dot" data-index="1" aria-label="Slide 2"></button>
+        <button class="carousel-dot" data-index="2" aria-label="Slide 3"></button>
+      </div>
+
+      <!-- Scroll Indicator -->
+      <div class="absolute bottom-10 left-6 md:left-12 z-20 hidden md:flex items-center gap-4">
+        <span class="font-label-caps text-neutral-500 rotate-90 origin-left text-[10px]">SCROLL</span>
+        <div class="w-[1px] h-16 bg-neutral-800 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-full h-1/2 bg-industrial-red animate-pulse"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sovereign Metrics Banner -->
+    <section class="bg-neutral-950 border-y border-border-gray py-8">
+      <div class="max-w-[1440px] mx-auto px-6 md:px-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
+        <div class="reveal-item">
+          <div class="font-label-caps text-industrial-red mb-1">SOVEREIGNTY</div>
+          <div class="font-headline-lg text-white font-bold">100% UAE</div>
+          <p class="text-xs text-neutral-400 mt-1">Abu Dhabi Industrial Hub</p>
+        </div>
+        <div class="reveal-item">
+          <div class="font-label-caps text-industrial-red mb-1">QUALITY STANDARD</div>
+          <div class="font-headline-lg text-white font-bold">AS9100D</div>
+          <p class="text-xs text-neutral-400 mt-1">Aerospace &amp; Defense Certified</p>
+        </div>
+        <div class="reveal-item">
+          <div class="font-label-caps text-industrial-red mb-1">TOLERANCE</div>
+          <div class="font-headline-lg text-white font-bold">&plusmn;0.005mm</div>
+          <p class="text-xs text-neutral-400 mt-1">Multi-Axis CNC Precision</p>
+        </div>
+        <div class="reveal-item">
+          <div class="font-label-caps text-industrial-red mb-1">READINESS</div>
+          <div class="font-headline-lg text-white font-bold">24/7 PROD</div>
+          <p class="text-xs text-neutral-400 mt-1">Mission-Critical Turnaround</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Capabilities Grid -->
+    <section class="py-24 bg-charcoal-deep" id="capabilities">
+      <div class="max-w-[1440px] mx-auto px-6 md:px-12">
+        <div class="mb-16 flex flex-col md:flex-row justify-between md:items-end gap-6">
+          <div>
+            <div class="font-label-caps text-industrial-red mb-2">PRECISION ECOSYSTEM</div>
+            <h2 class="font-headline-lg text-white text-3xl md:text-4xl mb-4">Core Manufacturing Capabilities</h2>
+            <div class="w-20 h-1 bg-industrial-red"></div>
+          </div>
+          <p class="font-body-md text-neutral-400 max-w-md">
+            Vertically integrated manufacturing solutions engineered for high-stakes aerospace and defense specifications.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="bento-card p-8 group flex flex-col justify-between reveal-item">
+            <div>
+              <div class="mb-6 overflow-hidden h-44 border border-border-gray">
+                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpVgCJChTSEHTVv2nkHLVqZPqWPFwfrC1TRcOQ-Po50TlZAAhuNzcj1WYOkuwavyzhSzfLDAzJYSP_OuX57m2M8hfxszAoCbua_aH2ZMT4FsEiXIu-UyvsZvCPbAjl13ln0CDqDSyqAUI7Z3-bHoAXbJzm5Q9o3czrPKmRrN1gGUruXdoU1zN6Ksl_PoIVtHnrq_e--qgoczUUHrmRbOd97gT6gP2pnFUTyee8sPizE1HFCSYS6SHOKAeh_owC0Qdn-VdHOexd3e4" alt="Design House"/>
+              </div>
+              <span class="font-label-caps text-industrial-red text-xs">01 / ENGINEERING</span>
+              <h3 class="font-headline-md text-xl text-white my-3 group-hover:text-industrial-red transition-colors">Design House &amp; CAD/FEA</h3>
+              <p class="font-body-sm text-neutral-400">Advanced 3D CAD modeling, structural finite element analysis, and rapid aerodynamic prototyping for mission-critical hardware.</p>
+            </div>
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-neutral-800">
+              <a class="font-label-caps text-xs text-neutral-300 group-hover:text-white flex items-center gap-1" href="/capabilities.html">
+                EXPLORE SPECIFICATIONS &rarr;
+              </a>
+              <span class="material-symbols-outlined text-industrial-red">arrow_forward</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bento-card p-8 group flex flex-col justify-between reveal-item">
+            <div>
+              <div class="mb-6 overflow-hidden h-44 border border-border-gray bg-black/40 flex items-center justify-center">
+                <img class="w-3/4 h-3/4 object-contain opacity-75 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYiRTIPSgxXsdLingQly-GZYg30VcyycT4z7Fahe3CQ0HyanfY2-VrbzOIRnakBUtnU9U868YG88nttPUc9r6XP_B7MCYfkQLNBEw-Os5MfL1YhqC1KkenY97n6kReWnv4vzkkX_Aaxnfcda_uw7zi6W4Kq-X8gdgfIsak-mZDhJMhIWQ_zo2op-4RlA0GhG9y2ZFfkaZ-e48dO0EQ0eEEowDOwhnG2pqgE5z2wWc0IuG-6Zbg4OARXrocRjBt7iHb6Urf8BsTto8" alt="Composite Manufacturing"/>
+              </div>
+              <span class="font-label-caps text-industrial-red text-xs">02 / AEROMATERIALS</span>
+              <h3 class="font-headline-md text-xl text-white my-3 group-hover:text-industrial-red transition-colors">Composite Aerostructures</h3>
+              <p class="font-body-sm text-neutral-400">High-performance carbon fiber autoclaving and advanced weave polymers designed for extreme thermal resistance and weight reduction.</p>
+            </div>
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-neutral-800">
+              <a class="font-label-caps text-xs text-neutral-300 group-hover:text-white flex items-center gap-1" href="/capabilities.html">
+                EXPLORE SPECIFICATIONS &rarr;
+              </a>
+              <span class="material-symbols-outlined text-industrial-red">arrow_forward</span>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bento-card p-8 group flex flex-col justify-between reveal-item">
+            <div>
+              <div class="mb-6 overflow-hidden h-44 border border-border-gray bg-black/40 flex items-center justify-center">
+                <img class="w-3/4 h-3/4 object-contain opacity-75 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGBoetXjh0bVJ1dnfaEE60wD-PKJ9cKZQ6k5Wr-n3tJO-bCZ9EQwbYSn6bAo56EqQJH5Mrl9zPij7CpFyg8YwnUFfnfbC4nBL2VkDmTX7Tv5U6bGCDnp5g6ZpB6-xArnb0nXZhlADyQsG86EVzkI3XYwZXN520evjBKzdn5oPrfRxrcIhyIvNKMkbHEYSHiOlKMnjzredoYWMhyejmoV0vIftmQlAM-45buv2oERhW50EsF9thtwhKPoWt_xD-3hDJdkR9__A9S9E" alt="Supply Network"/>
+              </div>
+              <span class="font-label-caps text-industrial-red text-xs">03 / PROCUREMENT</span>
+              <h3 class="font-headline-md text-xl text-white my-3 group-hover:text-industrial-red transition-colors">Sovereign Supply Chain</h3>
+              <p class="font-body-sm text-neutral-400">Certified traceability pipelines and tactical logistics guaranteeing raw material authenticity, compliant with UAE defense mandates.</p>
+            </div>
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-neutral-800">
+              <a class="font-label-caps text-xs text-neutral-300 group-hover:text-white flex items-center gap-1" href="/capabilities.html">
+                EXPLORE SPECIFICATIONS &rarr;
+              </a>
+              <span class="material-symbols-outlined text-industrial-red">arrow_forward</span>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="bento-card p-8 group flex flex-col justify-between reveal-item">
+            <div>
+              <div class="mb-6 overflow-hidden h-44 border border-border-gray">
+                <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDutgPYlhGcnqAksRvVrQxveg7GFd4qSXY-WpcUcDsITuufRsF_TfdTjjFvg0gQPSnVuIfSUney0T3B2oDrAgI3UTZhQkoSrA8dpCMO4N4ZDHivf4YNS3Epp2Y7iWXgVGswHun_XVWt0hRz0Z7NP9kzzFEVSXNyic7W7bYQ1gHplVia0aQTyaMd8cbMpCeb1H4hlRiHdcpLYYYudXah_Ww5vGOZoUjENVU9bPt7N5XGUeuF1bNNc9ffBwDR7MxcIBWy5zzJUUlV8eE" alt="Fabrication"/>
+              </div>
+              <span class="font-label-caps text-industrial-red text-xs">04 / MULTI-AXIS</span>
+              <h3 class="font-headline-md text-xl text-white my-3 group-hover:text-industrial-red transition-colors">5-Axis CNC &amp; Fabrication</h3>
+              <p class="font-body-sm text-neutral-400">Industrial machining of Inconel, Titanium, and 7075-T6 alloy blocks with automated laser metrology down to sub-micron accuracy.</p>
+            </div>
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-neutral-800">
+              <a class="font-label-caps text-xs text-neutral-300 group-hover:text-white flex items-center gap-1" href="/capabilities.html">
+                EXPLORE SPECIFICATIONS &rarr;
+              </a>
+              <span class="material-symbols-outlined text-industrial-red">arrow_forward</span>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div class="bento-card p-8 group flex flex-col justify-between reveal-item">
+            <div>
+              <div class="mb-6 h-44 border border-border-gray bg-neutral-900 flex items-center justify-center text-neutral-400">
+                <span class="material-symbols-outlined text-6xl text-industrial-red">verified</span>
+              </div>
+              <span class="font-label-caps text-industrial-red text-xs">05 / VERIFICATION</span>
+              <h3 class="font-headline-md text-xl text-white my-3 group-hover:text-industrial-red transition-colors">Metrology &amp; Quality QA</h3>
+              <p class="font-body-sm text-neutral-400">Non-destructive testing (NDT), coordinate measuring machines (CMM), ultrasonic scanning, and MIL-STD compliance validation.</p>
+            </div>
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-neutral-800">
+              <a class="font-label-caps text-xs text-neutral-300 group-hover:text-white flex items-center gap-1" href="/capabilities.html">
+                EXPLORE SPECIFICATIONS &rarr;
+              </a>
+              <span class="material-symbols-outlined text-industrial-red">arrow_forward</span>
+            </div>
+          </div>
+
+          <!-- Card 6 -->
+          <div class="bento-card p-8 group flex flex-col justify-between reveal-item">
+            <div>
+              <div class="mb-6 h-44 border border-border-gray bg-neutral-900 flex items-center justify-center text-neutral-400">
+                <span class="material-symbols-outlined text-6xl text-industrial-red">shield</span>
+              </div>
+              <span class="font-label-caps text-industrial-red text-xs">06 / INTEGRATION</span>
+              <h3 class="font-headline-md text-xl text-white my-3 group-hover:text-industrial-red transition-colors">Tactical Systems Assembly</h3>
+              <p class="font-body-sm text-neutral-400">Class 10,000 cleanroom mechanical assembly, electro-optical housing potting, and full lifecycle field readiness verification.</p>
+            </div>
+            <div class="flex items-center justify-between mt-8 pt-4 border-t border-neutral-800">
+              <a class="font-label-caps text-xs text-neutral-300 group-hover:text-white flex items-center gap-1" href="/capabilities.html">
+                EXPLORE SPECIFICATIONS &rarr;
+              </a>
+              <span class="material-symbols-outlined text-industrial-red">arrow_forward</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proven Delivery Section -->
+    <section class="py-24 bg-background relative overflow-hidden">
+      <div class="max-w-[1440px] mx-auto px-6 md:px-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div class="lg:col-span-5 reveal-item">
+            <span class="font-label-caps text-industrial-red mb-2 block">TRACK RECORD</span>
+            <h2 class="font-headline-lg text-white uppercase text-3xl md:text-4xl mb-6">Proven Defense Delivery</h2>
+            <p class="font-body-md text-neutral-300 mb-8">
+              FabNet UAE maintains strategic Tier-1 delivery channels with sovereign defense primes, producing high-tolerance hardware under strict defense localization standards.
+            </p>
+            <div class="space-y-6">
+              <div class="flex gap-4 items-start p-4 bg-neutral-900 border border-border-gray">
+                <div class="w-12 h-12 flex-shrink-0 bg-black flex items-center justify-center border border-border-gray">
+                  <span class="font-label-caps text-industrial-red text-xs">UAV</span>
+                </div>
+                <div>
+                  <h4 class="font-headline-md text-base text-white">Autonomous Airframes</h4>
+                  <p class="font-body-sm text-neutral-400 text-xs">High-modulus carbon-fiber airframe fabrication, yielding significant weight optimization for long-endurance autonomous flight.</p>
+                </div>
+              </div>
+              <div class="flex gap-4 items-start p-4 bg-neutral-900 border border-border-gray">
+                <div class="w-12 h-12 flex-shrink-0 bg-black flex items-center justify-center border border-border-gray">
+                  <span class="font-label-caps text-industrial-red text-xs">DEF</span>
+                </div>
+                <div>
+                  <h4 class="font-headline-md text-base text-white">Precision Weapon Housings</h4>
+                  <p class="font-body-sm text-neutral-400 text-xs">Machined high-pressure radar and guidance enclosures designed to withstand extreme supersonic vibration and thermal gradients.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 reveal-item">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="aspect-square bg-border-gray overflow-hidden angle-clip">
+                <img class="w-full h-full object-cover grayscale hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhME7LytbFSvWy6Io4ArJXiQ8FISoJeXdLmIZlAPjTGxY-H1XQQiG6dymHUhciEjnBy-AnxTZnVQswnFeu07S3WFxKe1Iu8yC8oOjzMIz_KLHslARz8Zab8BeDiLoB0KaheKNvVZ6T2aHjY-3-x96cWATWE2POaNUw8VR92i3JhsJDcopkfpmg3xUr2L9z6y29t1JjtEwK6zWI9U5dFgA7_V7MVsilmFy_JwbhDrWmGLoeW8Jc9bGICliMXRHVLlm9lkbmuqdvjp4" alt="Aerospace hardware"/>
+              </div>
+              <div class="aspect-square bg-border-gray overflow-hidden mt-8 angle-clip">
+                <img class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRTDz2onTA5o4l_BCW4vojuMH99vne6tnshsfn-H-B_AX-bUCxmFODz0My3utS1NEiiwQQ-PTB1-D3XmeMKz0vwb7FdjJkQ5dJoIUShFDj1QtNnjvt_w92ER-_A_Dl0SmFCg4sZyvhH13gQweEdk7MbWZuMZEvXcYcW465Lp_wtV_053d83jR-HMnj0u9G6PO8py-55d3OxElR_zV0700iHrgc42P5iSTux09-04lB6kJUjUhSvNj31dXYvXg6Av7JsKqPuf8ZmdI" alt="Machined component"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Partner Banner -->
+    <section class="py-16 bg-neutral-950 border-y border-border-gray relative overflow-hidden">
+      <div class="max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div>
+          <span class="font-label-caps text-industrial-red mb-1 block">SOVEREIGN COLLABORATION</span>
+          <h2 class="font-headline-lg text-white text-2xl md:text-3xl mb-2">Accelerate Your Manufacturing Pipeline</h2>
+          <p class="font-body-md text-neutral-400">Join our defense manufacturing procurement network or request a formal quotation.</p>
+        </div>
+        <div class="flex flex-wrap gap-4">
+          <a class="btn-red" href="/contact.html">SUBMIT DRAWINGS &amp; RFQ</a>
+          <a class="btn-outline" href="/sectors.html">VIEW SECTORS</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-charcoal-deep border-t border-border-gray pt-16 pb-8">
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div>
+        <a class="font-headline-md text-xl text-white mb-4 block no-underline" href="/">FABNET UAE</a>
+        <p class="font-body-sm text-neutral-400 mb-6">
+          High-precision aerospace and defense manufacturing partner in Abu Dhabi. Delivering engineered reliability for mission success.
+        </p>
+        <div class="flex items-center gap-3">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 status-dot-pulse"></span>
+          <span class="font-label-caps text-xs text-neutral-300">FACILITY OPERATIONAL &bull; ICAD III</span>
+        </div>
+      </div>
+      <div>
+        <h5 class="font-label-caps text-industrial-red mb-4">PLATFORM NAVIGATION</h5>
+        <ul class="space-y-3 p-0 list-none text-sm">
+          <li><a class="text-neutral-400 hover:text-white transition-colors" href="/capabilities.html">Capabilities</a></li>
+          <li><a class="text-neutral-400 hover:text-white transition-colors" href="/sectors.html">Industrial Sectors</a></li>
+          <li><a class="text-neutral-400 hover:text-white transition-colors" href="/about.html">About FabNet</a></li>
+          <li><a class="text-neutral-400 hover:text-white transition-colors" href="/contact.html">Contact &amp; RFQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="font-label-caps text-industrial-red mb-4">COMPLIANCE &amp; QUALITY</h5>
+        <ul class="space-y-3 p-0 list-none text-sm">
+          <li><span class="text-neutral-400">AS9100D Aerospace Certified</span></li>
+          <li><span class="text-neutral-400">ISO 9001:2015 Quality Management</span></li>
+          <li><span class="text-neutral-400">UAE Defense Industrial Base (DIB)</span></li>
+          <li><span class="text-neutral-400">ITAR / Non-Disclosure Controlled</span></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="font-label-caps text-industrial-red mb-4">HEADQUARTERS</h5>
+        <p class="font-body-sm text-neutral-400 mb-4">
+          Abu Dhabi Industrial City (ICAD III)<br/>
+          P.O. Box 91024, Abu Dhabi, UAE<br/>
+          Direct: <a href="mailto:rfq@fabnetsystems.com" class="text-industrial-red hover:underline">rfq@fabnetsystems.com</a>
+        </p>
+        <a class="btn-outline text-xs py-2 px-4 inline-flex" href="https://panel.fabnetsystems.com">
+          CLIENT PORTAL ACCESS
+        </a>
+      </div>
+    </div>
+    <div class="max-w-[1440px] mx-auto px-6 md:px-12 pt-8 border-t border-border-gray flex flex-col md:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
+      <p>&copy; 2026 FabNet Systems UAE. All rights reserved.</p>
+      <p class="font-mono">DOMAIN: FABNETSYSTEMS.COM &bull; HIGH-PRECISION DEFENSE CONTRACTING</p>
+    </div>
+  </footer>
+
+</body>
+</html>
