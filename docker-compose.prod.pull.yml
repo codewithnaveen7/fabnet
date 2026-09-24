@@ -81,6 +81,8 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
       - ./public:/var/www/public:ro
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./nginx/docker-entrypoint.sh:/docker-entrypoint.sh:ro
     depends_on:
       - backend
       - frontend

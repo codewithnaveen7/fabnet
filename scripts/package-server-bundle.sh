@@ -19,8 +19,12 @@ cp docker-compose.prod.pull.yml "${BUNDLE_DIR}/"
 cp .env.example "${BUNDLE_DIR}/.env.example"
 cp backend/.env.production.example "${BUNDLE_DIR}/backend/.env.production.example"
 
-# 3. Static public website
+# 3. Static public website & Nginx configuration
 cp -r public "${BUNDLE_DIR}/"
+mkdir -p "${BUNDLE_DIR}/nginx"
+cp -r nginx/templates "${BUNDLE_DIR}/nginx/"
+cp nginx/docker-entrypoint.sh "${BUNDLE_DIR}/nginx/"
+chmod +x "${BUNDLE_DIR}/nginx/docker-entrypoint.sh"
 
 # 4. Server operational scripts
 cp scripts/server-setup.sh "${BUNDLE_DIR}/scripts/"
