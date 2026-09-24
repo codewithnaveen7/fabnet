@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
+  <!-- Modern Industrial Logo for FabNet -->
+  <path d="M10 10 L25 10 L30 25 L35 10 L50 10 L50 50 L35 50 L35 25 L30 40 L25 25 L25 50 L10 50 Z" fill="#3b82f6"/>
+  <text x="60" y="42" font-family="IBM Plex Sans, sans-serif" font-weight="700" font-size="32" fill="#ffffff">FabNet</text>
+  <rect x="10" y="52" width="40" height="2" fill="#3b82f6"/>
+</svg>
