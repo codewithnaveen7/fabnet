@@ -50,7 +50,7 @@ cat > "${BUNDLE_DIR}/SERVER_README.txt" << 'EOF'
    - PANEL_DOMAIN=panel.fabnetsystems.com
    - API_DOMAIN=api.fabnetsystems.com
    - CDN_DOMAIN=cdn.fabnetsystems.com
-   - LETSENCRYPT_EMAIL=info@fabnetsystems.com
+   - LETSENCRYPT_EMAIL=you@fabnetsystems.com
 
 3. Verify DNS:
    Ensure A records (@, www, panel, api, cdn) point to this server's public IP.
