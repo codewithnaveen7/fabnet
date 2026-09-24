@@ -40,37 +40,43 @@ docker buildx inspect fabnet-builder >/dev/null 2>&1 || \
   docker buildx create --name fabnet-builder --use >/dev/null
 docker buildx use fabnet-builder >/dev/null
 
-echo "==> Backend: ${BACKEND_IMAGE}"
-docker buildx build --platform "${PLATFORM}" \
-  -f backend/Dockerfile.prod \
-  -t "${BACKEND_IMAGE}" \
-  --push ./backend
+TARGET="${1:-all}"
 
-echo "==> Frontend: ${FRONTEND_IMAGE}"
-docker buildx build --platform "${PLATFORM}" \
-  -f frontend/Dockerfile.prod \
-  --build-arg "REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}" \
-  --build-arg "REACT_APP_KDESIGNS_REMOTE_ENTRY_URL=${REACT_APP_KDESIGNS_REMOTE_ENTRY_URL}" \
-  -t "${FRONTEND_IMAGE}" \
-  --push ./frontend
+if [[ "${TARGET}" == "all" || "${TARGET}" == "backend" ]]; then
+  echo "==> Backend: ${BACKEND_IMAGE}"
+  docker buildx build --platform "${PLATFORM}" \
+    -f backend/Dockerfile.prod \
+    -t "${BACKEND_IMAGE}" \
+    --push ./backend
+fi
 
-echo "==> kdesigns: ${KDESIGNS_IMAGE}"
-docker buildx build --platform "${PLATFORM}" \
-  -f kdesigns/Dockerfile.compose.prod \
-  -t "${KDESIGNS_IMAGE}" \
-  --push ./kdesigns
+if [[ "${TARGET}" == "all" || "${TARGET}" == "frontend" ]]; then
+  echo "==> Frontend: ${FRONTEND_IMAGE}"
+  docker buildx build --platform "${PLATFORM}" \
+    -f frontend/Dockerfile.prod \
+    --build-arg "REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}" \
+    --build-arg "REACT_APP_KDESIGNS_REMOTE_ENTRY_URL=${REACT_APP_KDESIGNS_REMOTE_ENTRY_URL}" \
+    -t "${FRONTEND_IMAGE}" \
+    --push ./frontend
+fi
 
-echo "==> proxy: ${PROXY_IMAGE}"
-mkdir -p ./nginx/public
-cp -r ./public/* ./nginx/public/
-docker buildx build --platform "${PLATFORM}" \
-  -f nginx/Dockerfile \
-  -t "${PROXY_IMAGE}" \
-  --push ./nginx
+if [[ "${TARGET}" == "all" || "${TARGET}" == "kdesigns" ]]; then
+  echo "==> kdesigns: ${KDESIGNS_IMAGE}"
+  docker buildx build --platform "${PLATFORM}" \
+    -f kdesigns/Dockerfile.compose.prod \
+    -t "${KDESIGNS_IMAGE}" \
+    --push ./kdesigns
+fi
+
+if [[ "${TARGET}" == "all" || "${TARGET}" == "proxy" ]]; then
+  echo "==> proxy: ${PROXY_IMAGE}"
+  mkdir -p ./nginx/public
+  cp -r ./public/* ./nginx/public/
+  docker buildx build --platform "${PLATFORM}" \
+    -f nginx/Dockerfile \
+    -t "${PROXY_IMAGE}" \
+    --push ./nginx
+fi
 
 echo ""
-echo "Done. Images pushed:"
-echo "  ${BACKEND_IMAGE}"
-echo "  ${FRONTEND_IMAGE}"
-echo "  ${KDESIGNS_IMAGE}"
-echo "  ${PROXY_IMAGE}"
+echo "Done. Target '${TARGET}' built and pushed to Docker Hub."
