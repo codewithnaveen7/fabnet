@@ -110,7 +110,7 @@ MAIN_DOMAIN=fabnetsystems.com
 PANEL_DOMAIN=panel.fabnetsystems.com
 API_DOMAIN=api.fabnetsystems.com
 CDN_DOMAIN=cdn.fabnetsystems.com
-LETSENCRYPT_EMAIL=you@fabnetsystems.com
+LETSENCRYPT_EMAIL=info@fabnetsystems.com
 ```
 
 > Special characters in `MYSQL_PASSWORD` must be URL-encoded in `DATABASE_URL` (e.g. `$` → `%24`, `@` → `%40`).
