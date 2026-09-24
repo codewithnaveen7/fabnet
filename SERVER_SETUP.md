@@ -77,20 +77,28 @@ Server par `/opt/fabnet/` (ya apna path):
 └── scripts/
     ├── server-setup.sh
     ├── server-ssl-init.sh
+    ├── server-ssl-renew.sh
     └── server-pull-up.sh
 ```
 
-**SCP example:**
+**Tarball package (easiest & recommended):**
 
 ```bash
-scp docker-compose.prod.pull.yml user@server:/opt/fabnet/
-scp .env user@server:/opt/fabnet/
-scp -r public user@server:/opt/fabnet/
-scp backend/.env.production user@server:/opt/fabnet/backend/
-scp scripts/server-setup.sh scripts/server-ssl-init.sh scripts/server-pull-up.sh scripts/reset-admin-password.sh user@server:/opt/fabnet/scripts/
+# Local machine par bundle banao:
+./scripts/package-server-bundle.sh
+
+# Server par upload aur extract karo:
+scp fabnet-server-bundle.tar.gz user@server:/opt/
+ssh user@server "mkdir -p /opt/fabnet && tar -xzf /opt/fabnet-server-bundle.tar.gz -C /opt/fabnet"
 ```
 
-> DNS A records (`@` for fabnetsystems.com, `panel`, `api`, `cdn`) server IP par point karo **before** SSL step.
+**Or 1-command direct deploy:**
+
+```bash
+./scripts/deploy-to-server.sh user@<SERVER_IP>
+```
+
+> DNS A records (`@` for fabnetsystems.com, `www`, `panel`, `api`, `cdn`) server IP par point karo **before** SSL step.
 
 ---
 

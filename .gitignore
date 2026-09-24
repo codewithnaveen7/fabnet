@@ -7,6 +7,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+!backend/.env.example
+!backend/.env.production.example
 backend/.env.development
 backend/.env.production
 frontend/.env
@@ -57,4 +59,6 @@ backend/prisma/*.db-journal
 
 # Misc
 *.pem
+*.tar.gz
+fabnet-server-bundle/
 .terraform/

@@ -27,6 +27,7 @@ set -a
 source .env
 set +a
 
+MAIN_DOMAIN="${MAIN_DOMAIN:-fabnetsystems.com}"
 PANEL_DOMAIN="${PANEL_DOMAIN:-panel.fabnetsystems.com}"
 API_DOMAIN="${API_DOMAIN:-api.fabnetsystems.com}"
 CDN_DOMAIN="${CDN_DOMAIN:-cdn.fabnetsystems.com}"
@@ -63,6 +64,7 @@ echo ""
 docker compose -f "${COMPOSE_FILE}" ps
 echo ""
 echo "URLs:"
+echo "  Site:   http://${MAIN_DOMAIN} (or https if SSL enabled)"
 echo "  Panel:  http://${PANEL_DOMAIN}"
 echo "  API:    http://${API_DOMAIN}/health"
 echo "  CDN:    http://${CDN_DOMAIN}/kdesigns/remoteEntry.js"

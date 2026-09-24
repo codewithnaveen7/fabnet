@@ -26,6 +26,35 @@ fi
 
 mkdir -p certbot/conf certbot/www
 
+request_main_cert() {
+  local domain="$1"
+  local www_domain="www.${domain}"
+  if [[ -f "certbot/conf/live/${domain}/fullchain.pem" ]]; then
+    echo "Certificate already exists for ${domain}, skipping."
+    return 0
+  fi
+
+  echo "Requesting certificate for ${domain} and ${www_domain}..."
+  if ! docker compose -f "${COMPOSE_FILE}" run --rm certbot certonly \
+    --webroot \
+    -w /var/www/certbot \
+    --email "${LETSENCRYPT_EMAIL}" \
+    --agree-tos \
+    --no-eff-email \
+    --cert-name "${domain}" \
+    -d "${domain}" -d "${www_domain}"; then
+      echo "Dual cert failed (possibly www DNS not pointed yet). Retrying for ${domain} only..."
+      docker compose -f "${COMPOSE_FILE}" run --rm certbot certonly \
+        --webroot \
+        -w /var/www/certbot \
+        --email "${LETSENCRYPT_EMAIL}" \
+        --agree-tos \
+        --no-eff-email \
+        --cert-name "${domain}" \
+        -d "${domain}"
+  fi
+}
+
 request_cert() {
   local domain="$1"
   if [[ -f "certbot/conf/live/${domain}/fullchain.pem" ]]; then
@@ -43,7 +72,7 @@ request_cert() {
     -d "${domain}"
 }
 
-request_cert "${MAIN_DOMAIN}"
+request_main_cert "${MAIN_DOMAIN}"
 request_cert "${PANEL_DOMAIN}"
 request_cert "${API_DOMAIN}"
 request_cert "${CDN_DOMAIN}"
