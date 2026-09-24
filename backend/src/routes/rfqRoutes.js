@@ -23,6 +23,9 @@ function multipartOrJson(req, res, next) {
 const createValidators = [
   body('title').trim().notEmpty(),
   body('clientProjectName').trim().notEmpty(),
+  body('clientEmail').optional({ nullable: true, checkFalsy: true }).isEmail(),
+  body('clientContactPerson').optional({ nullable: true }).trim(),
+  body('clientPhone').optional({ nullable: true }).trim(),
   body('quoteDueDate').notEmpty(),
   body('requiredDeliveryDate').notEmpty(),
   body('partName').trim().notEmpty(),
@@ -52,6 +55,9 @@ const updateValidators = [
   body('id').notEmpty(),
   body('title').optional().trim().notEmpty(),
   body('clientProjectName').optional().trim().notEmpty(),
+  body('clientEmail').optional({ nullable: true, checkFalsy: true }).isEmail(),
+  body('clientContactPerson').optional({ nullable: true }).trim(),
+  body('clientPhone').optional({ nullable: true }).trim(),
   body('quoteDueDate').optional().notEmpty(),
   body('requiredDeliveryDate').optional().notEmpty(),
   body('partName').optional().trim().notEmpty(),
@@ -161,6 +167,25 @@ router.post(
   ],
   validate,
   asyncHandler(rfqController.setAward)
+);
+router.post(
+  '/quotation-pdf',
+  parseEventBody,
+  requireRole('ADMIN'),
+  [body('rfqId').notEmpty()],
+  validate,
+  asyncHandler(rfqController.getQuotationPdf)
+);
+router.post(
+  '/send-quotation',
+  parseEventBody,
+  requireRole('ADMIN'),
+  [
+    body('rfqId').notEmpty(),
+    body('clientEmail').optional({ nullable: true, checkFalsy: true }).isEmail(),
+  ],
+  validate,
+  asyncHandler(rfqController.sendQuotation)
 );
 
 module.exports = router;

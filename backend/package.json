@@ -26,6 +26,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.2.0",
+    "pdfkit": "^0.20.1",
     "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
     "prisma": "^5.22.0",

@@ -163,6 +163,9 @@ model Rfq {
   title                       String    @db.VarChar(255)
   requestedById               String    @map("requested_by_id") @db.Char(36)
   clientProjectName           String    @map("client_project_name") @db.VarChar(255)
+  clientEmail                 String?   @map("client_email") @db.VarChar(255)
+  clientContactPerson         String?   @map("client_contact_person") @db.VarChar(255)
+  clientPhone                 String?   @map("client_phone") @db.VarChar(50)
   dateCreated                 DateTime  @default(now()) @map("date_created")
   quoteDueDate                DateTime  @map("quote_due_date") @db.Date
   requiredDeliveryDate        DateTime  @map("required_delivery_date") @db.Date
@@ -183,6 +186,7 @@ model Rfq {
   currency                    String    @db.VarChar(8)
   quotesRequired              Int?      @map("quotes_required")
   status                      RfqStatus @default(DRAFT)
+  quotationSentAt             DateTime? @map("quotation_sent_at")
   createdAt                   DateTime  @default(now()) @map("created_at")
   updatedAt                   DateTime  @updatedAt @map("updated_at")
 

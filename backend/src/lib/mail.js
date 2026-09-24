@@ -30,6 +30,19 @@ async function getAccessToken({ tenantId, clientId, clientSecret }) {
  * Send email via Microsoft Graph API.
  * Azure App Registration needs Mail.Send (Application) + admin consent.
  */
+function toGraphAttachments(attachments = []) {
+  return (Array.isArray(attachments) ? attachments : [])
+    .filter((att) => att?.name && att?.contentBytes)
+    .map((att) => ({
+      '@odata.type': '#microsoft.graph.fileAttachment',
+      name: att.name,
+      contentType: att.contentType || 'application/octet-stream',
+      contentBytes: Buffer.isBuffer(att.contentBytes)
+        ? att.contentBytes.toString('base64')
+        : att.contentBytes,
+    }));
+}
+
 async function sendMail({
   tenantId,
   clientId,
@@ -40,6 +53,7 @@ async function sendMail({
   body,
   bodyType = 'HTML',
   cc = [],
+  attachments = [],
   saveToSentItems = true,
 }) {
   const accessToken = await getAccessToken({ tenantId, clientId, clientSecret });
@@ -60,6 +74,8 @@ async function sendMail({
       emailAddress: { address: email },
     }));
 
+  const graphAttachments = toGraphAttachments(attachments);
+
   const payload = {
     message: {
       subject,
@@ -69,6 +85,7 @@ async function sendMail({
       },
       toRecipients,
       ...(ccRecipients.length > 0 ? { ccRecipients } : {}),
+      ...(graphAttachments.length ? { attachments: graphAttachments } : {}),
     },
     saveToSentItems,
   };

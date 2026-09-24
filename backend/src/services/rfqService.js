@@ -5,7 +5,12 @@ const {
   assertActiveServiceIds,
   resolveServiceIdsByNames,
 } = require('./serviceService');
-const { sendRfqInviteEmails, sendSupplierQuoteNotification } = require('./rfqMailService');
+const {
+  sendRfqInviteEmails,
+  sendSupplierQuoteNotification,
+  sendClientQuotationEmail,
+} = require('./rfqMailService');
+const { generateQuotationPdf } = require('./quotationPdf');
 
 const rfqDetailSelect = {
   id: true,
@@ -13,6 +18,9 @@ const rfqDetailSelect = {
   title: true,
   requestedById: true,
   clientProjectName: true,
+  clientEmail: true,
+  clientContactPerson: true,
+  clientPhone: true,
   dateCreated: true,
   quoteDueDate: true,
   requiredDeliveryDate: true,
@@ -33,6 +41,7 @@ const rfqDetailSelect = {
   currency: true,
   quotesRequired: true,
   status: true,
+  quotationSentAt: true,
   createdAt: true,
   updatedAt: true,
   requestedBy: { select: { id: true, name: true, email: true } },
@@ -103,6 +112,20 @@ const rfqDetailSelect = {
 function asStringArray(value) {
   if (!Array.isArray(value)) return [];
   return [...new Set(value.map((v) => String(v || '').trim()).filter(Boolean))];
+}
+
+function optionalString(value, fallback = undefined) {
+  if (value === undefined) return fallback;
+  if (value == null) return null;
+  const t = String(value).trim();
+  return t ? t : null;
+}
+
+function assertOptionalEmail(value, field = 'Client email') {
+  if (!value) return;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    throw ApiError.badRequest(`${field} is invalid`);
+  }
 }
 
 function fieldFiles(files, field) {
@@ -250,13 +273,27 @@ async function assertSupplierCanAccessRfq(rfqId, userId) {
 
 function sanitizeRfqForSupplier(rfq, supplierId, quotableServiceIds = []) {
   if (!rfq) return rfq;
-  const { targetBudgetaryPrice, invites, awards, quotes, ...rest } = rfq;
+  const {
+    targetBudgetaryPrice,
+    invites,
+    awards,
+    quotes,
+    clientEmail,
+    clientContactPerson,
+    clientPhone,
+    quotationSentAt,
+    ...rest
+  } = rfq;
   return {
     ...rest,
-    // Hide internal budget, other invitees, and awards from suppliers
+    // Hide internal budget, other invitees, awards, and client contact from suppliers
     targetBudgetaryPrice: undefined,
     invites: undefined,
     awards: undefined,
+    clientEmail: undefined,
+    clientContactPerson: undefined,
+    clientPhone: undefined,
+    quotationSentAt: undefined,
     supplierId,
     quotableServiceIds,
     quotes: (quotes || []).filter((q) => q.supplierId === supplierId),
@@ -395,6 +432,9 @@ async function createRfq(payload, files = {}, requestedById) {
   const {
     title,
     clientProjectName,
+    clientEmail,
+    clientContactPerson,
+    clientPhone,
     quoteDueDate,
     requiredDeliveryDate,
     partName,
@@ -422,6 +462,10 @@ async function createRfq(payload, files = {}, requestedById) {
 
   if (!title?.trim()) throw ApiError.badRequest('Title is required');
   if (!clientProjectName?.trim()) throw ApiError.badRequest('Client / project name is required');
+  const resolvedClientEmail = optionalString(clientEmail, null);
+  const resolvedClientContact = optionalString(clientContactPerson, null);
+  const resolvedClientPhone = optionalString(clientPhone, null);
+  assertOptionalEmail(resolvedClientEmail);
   if (!partName?.trim()) throw ApiError.badRequest('Part / assembly name is required');
   if (!partNumber?.trim()) throw ApiError.badRequest('Part number is required');
   if (quantity == null || quantity === '') throw ApiError.badRequest('Quantity is required');
@@ -448,6 +492,9 @@ async function createRfq(payload, files = {}, requestedById) {
         title: title.trim(),
         requestedById,
         clientProjectName: clientProjectName.trim(),
+        clientEmail: resolvedClientEmail,
+        clientContactPerson: resolvedClientContact,
+        clientPhone: resolvedClientPhone,
         quoteDueDate: parseDateOnly(quoteDueDate, 'quoteDueDate'),
         requiredDeliveryDate: parseDateOnly(requiredDeliveryDate, 'requiredDeliveryDate'),
         partName: partName.trim(),
@@ -504,6 +551,9 @@ async function updateRfq(id, payload, files = {}) {
   const {
     title,
     clientProjectName,
+    clientEmail,
+    clientContactPerson,
+    clientPhone,
     quoteDueDate,
     requiredDeliveryDate,
     partName,
@@ -531,6 +581,10 @@ async function updateRfq(id, payload, files = {}) {
     status,
   } = payload;
 
+  if (clientEmail !== undefined) {
+    assertOptionalEmail(optionalString(clientEmail, null));
+  }
+
   const serviceIds = await resolveProcessServiceIds({
     processServiceIds,
     processServiceNames,
@@ -546,6 +600,16 @@ async function updateRfq(id, payload, files = {}) {
       data: {
         title: title?.trim() || existing.title,
         clientProjectName: clientProjectName?.trim() || existing.clientProjectName,
+        clientEmail:
+          clientEmail === undefined
+            ? existing.clientEmail
+            : optionalString(clientEmail, null),
+        clientContactPerson:
+          clientContactPerson === undefined
+            ? existing.clientContactPerson
+            : optionalString(clientContactPerson, null),
+        clientPhone:
+          clientPhone === undefined ? existing.clientPhone : optionalString(clientPhone, null),
         quoteDueDate: quoteDueDate
           ? parseDateOnly(quoteDueDate, 'quoteDueDate')
           : existing.quoteDueDate,
@@ -825,6 +889,76 @@ async function setAward(payload, user) {
   return award;
 }
 
+async function getQuotationPdf(payload, user) {
+  if (user.role !== 'ADMIN') throw ApiError.forbidden('Admin only');
+  const rfqId = payload?.rfqId || payload?.id;
+  if (!rfqId) throw ApiError.badRequest('RFQ id is required');
+
+  const rfq = await getRfqById(rfqId);
+  const { buffer, fileName } = await generateQuotationPdf(rfq);
+  return {
+    fileName,
+    contentType: 'application/pdf',
+    contentBase64: buffer.toString('base64'),
+  };
+}
+
+async function sendClientQuotation(payload, user) {
+  if (user.role !== 'ADMIN') throw ApiError.forbidden('Admin only');
+  const rfqId = payload?.rfqId || payload?.id;
+  if (!rfqId) throw ApiError.badRequest('RFQ id is required');
+
+  const incomingEmail = optionalString(payload?.clientEmail, null);
+  assertOptionalEmail(incomingEmail);
+
+  if (incomingEmail !== null && incomingEmail !== undefined) {
+    await prisma.rfq.update({
+      where: { id: rfqId },
+      data: {
+        clientEmail: incomingEmail,
+        ...(payload?.clientContactPerson !== undefined
+          ? { clientContactPerson: optionalString(payload.clientContactPerson, null) }
+          : {}),
+      },
+    });
+  }
+
+  const rfq = await getRfqById(rfqId);
+  const toEmail = incomingEmail || rfq.clientEmail;
+  if (!toEmail) {
+    throw ApiError.badRequest('Client email is required to send the quotation');
+  }
+
+  const { buffer, fileName, model } = await generateQuotationPdf(rfq);
+  const mail = await sendClientQuotationEmail({
+    rfq: { ...rfq, clientEmail: toEmail },
+    toEmail,
+    model,
+    pdfBuffer: buffer,
+    fileName,
+  });
+
+  if (!mail.sent) {
+    if (mail.reason === 'mail_not_configured') {
+      throw ApiError.badRequest('Email is not configured. Set Azure mail env variables.');
+    }
+    throw ApiError.internal(mail.reason || 'Failed to send quotation email');
+  }
+
+  await prisma.rfq.update({
+    where: { id: rfqId },
+    data: {
+      clientEmail: toEmail,
+      quotationSentAt: new Date(),
+    },
+  });
+
+  return {
+    ...mail,
+    quotationSentAt: new Date(),
+  };
+}
+
 module.exports = {
   listRfqs,
   getRfqById,
@@ -836,4 +970,6 @@ module.exports = {
   nextRfqNumber,
   upsertQuote,
   setAward,
+  getQuotationPdf,
+  sendClientQuotation,
 };

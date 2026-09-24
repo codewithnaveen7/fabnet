@@ -46,6 +46,16 @@ async function setAward(req, res) {
   res.json({ success: true, data: award });
 }
 
+async function getQuotationPdf(req, res) {
+  const pdf = await rfqService.getQuotationPdf(req.body, req.user);
+  res.json({ success: true, data: pdf });
+}
+
+async function sendQuotation(req, res) {
+  const result = await rfqService.sendClientQuotation(req.body, req.user);
+  res.json({ success: true, data: result });
+}
+
 module.exports = {
   listRfqs,
   getRfq,
@@ -56,4 +66,6 @@ module.exports = {
   getFileUrl,
   upsertQuote,
   setAward,
+  getQuotationPdf,
+  sendQuotation,
 };

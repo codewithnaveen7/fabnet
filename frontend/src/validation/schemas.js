@@ -90,6 +90,16 @@ export const serviceSchema = z.object({
 export const addRfqSchema = z.object({
   title: z.string().trim().min(1, "RFQ title is required").max(255),
   clientProjectName: z.string().trim().min(1, "Client / project name is required").max(255),
+  clientEmail: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val), {
+      message: "Enter a valid client email",
+    }),
+  clientContactPerson: z.string().trim().max(255).optional().or(z.literal("")),
+  clientPhone: z.string().trim().max(50).optional().or(z.literal("")),
   quoteDueDate: z.union([z.date(), z.string()]).refine((v) => Boolean(v), {
     message: "Quote due date is required",
   }),

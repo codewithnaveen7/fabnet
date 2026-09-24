@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FabNet Systems — RFQ Quotation Format</title>
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --orange:#E07A2F;
+    --grey:#666666;
+    --lgrey:#F2F2F2;
+    --border:#CCCCCC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    color:#111;
+    max-width:900px;
+    margin:0 auto;
+    padding:30px 40px 60px;
+    background:#fff;
+  }
+  .header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:2px solid var(--orange);
+    padding-bottom:12px;
+    margin-bottom:20px;
+  }
+  .header h1{
+    color:var(--navy);
+    font-size:26px;
+    margin:0 0 6px 0;
+    letter-spacing:0.5px;
+  }
+  .header .company-info{
+    font-size:12px;
+    color:var(--grey);
+    line-height:1.5;
+  }
+  .header .quote-title{
+    text-align:right;
+  }
+  .header .quote-title h2{
+    color:var(--orange);
+    font-size:26px;
+    margin:0;
+    letter-spacing:1px;
+  }
+  .header .quote-title span{
+    font-size:12px;
+    color:var(--grey);
+  }
+  .meta-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 40px;
+    margin-bottom:24px;
+  }
+  .field-row{
+    display:grid;
+    grid-template-columns:150px 1fr;
+    gap:8px;
+    padding:4px 0;
+    font-size:13px;
+  }
+  .field-label{
+    color:var(--grey);
+    font-weight:700;
+    font-size:11.5px;
+  }
+  .field-value{
+    color:#111;
+  }
+  .placeholder{
+    color:#8a8a8a;
+    font-style:italic;
+  }
+  .section-bar{
+    background:var(--navy);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    padding:7px 10px;
+    margin:22px 0 10px 0;
+    letter-spacing:0.3px;
+  }
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 40px;
+  }
+  table.items{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+    margin-top:4px;
+  }
+  table.items th{
+    background:var(--navy);
+    color:#fff;
+    padding:8px 6px;
+    text-align:left;
+    font-size:11.5px;
+  }
+  table.items td{
+    padding:8px 6px;
+    border:1px solid var(--border);
+  }
+  table.items tr:nth-child(even) td{
+    background:var(--lgrey);
+  }
+  table.items th.num, table.items td.num{ text-align:center; }
+  table.items th.money, table.items td.money{ text-align:right; }
+  .totals{
+    width:280px;
+    margin-left:auto;
+    margin-top:10px;
+    font-size:13px;
+  }
+  .totals div{
+    display:flex;
+    justify-content:space-between;
+    padding:4px 0;
+  }
+  .totals .grand{
+    border-top:2px solid var(--orange);
+    margin-top:4px;
+    padding-top:8px;
+    font-weight:700;
+    color:var(--navy);
+    font-size:15px;
+  }
+  table.terms{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12.5px;
+    margin-top:4px;
+  }
+  table.terms td{
+    border:1px solid #ddd;
+    padding:7px 10px;
+  }
+  table.terms td.label{
+    background:var(--lgrey);
+    font-weight:700;
+    color:var(--grey);
+    width:32%;
+    font-size:11.5px;
+  }
+  .notes-box{
+    border:1px solid var(--border);
+    padding:14px;
+    min-height:70px;
+    font-size:12.5px;
+    color:#555;
+    margin-top:4px;
+  }
+  .auth-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 40px;
+    margin-top:20px;
+  }
+  .auth-grid .sig-label{
+    font-weight:700;
+    color:var(--grey);
+    font-size:11.5px;
+    margin-bottom:40px;
+    display:block;
+  }
+  .auth-grid .sig-line{
+    border-top:1px solid var(--grey);
+    padding-top:6px;
+    font-size:11px;
+    color:var(--grey);
+  }
+  .footer-note{
+    margin-top:30px;
+    padding-top:10px;
+    border-top:1px solid var(--border);
+    font-size:11px;
+    color:var(--grey);
+  }
+  @media print{
+    body{ padding:0 20px; }
+    .section-bar{ break-inside:avoid; }
+    table.items{ break-inside:auto; }
+    tr{ break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <div>
+      <h1>FABNET SYSTEMS</h1>
+      <div class="company-info">
+        [Company Address, City, Country]<br>
+        [Phone] &nbsp;|&nbsp; [Email] &nbsp;|&nbsp; www.fabnetsystems.com
+      </div>
+    </div>
+    <div class="quote-title">
+      <h2>QUOTATION</h2>
+      <span>In response to RFQ</span>
+    </div>
+  </div>
+
+  <div class="meta-grid">
+    <div>
+      <div class="field-row"><div class="field-label">Quotation No.</div><div class="field-value placeholder">FN-QT-YYYY-###</div></div>
+      <div class="field-row"><div class="field-label">Quotation Date</div><div class="field-value placeholder">DD-Mon-YYYY</div></div>
+      <div class="field-row"><div class="field-label">RFQ Reference No.</div><div class="field-value placeholder">Buyer's RFQ #</div></div>
+      <div class="field-row"><div class="field-label">RFQ Issue Date</div><div class="field-value placeholder">DD-Mon-YYYY</div></div>
+    </div>
+    <div>
+      <div class="field-row"><div class="field-label">Validity of Offer</div><div class="field-value placeholder">__ days from quote date</div></div>
+      <div class="field-row"><div class="field-label">Currency</div><div class="field-value placeholder">USD / AED / INR</div></div>
+      <div class="field-row"><div class="field-label">Incoterms</div><div class="field-value placeholder">EXW / FOB / DAP – Location</div></div>
+      <div class="field-row"><div class="field-label">Payment Terms</div><div class="field-value placeholder">e.g. 30% advance / 70% on delivery</div></div>
+    </div>
+  </div>
+
+  <div class="section-bar">BUYER / RFQ ISSUED BY</div>
+  <div class="two-col">
+    <div>
+      <div class="field-row"><div class="field-label">Company Name</div><div class="field-value placeholder">Buyer Company</div></div>
+      <div class="field-row"><div class="field-label">Contact Person</div><div class="field-value placeholder">Name, Title</div></div>
+      <div class="field-row"><div class="field-label">Email / Phone</div><div class="field-value placeholder">Email / Phone</div></div>
+      <div class="field-row"><div class="field-label">Project / Program</div><div class="field-value placeholder">Program Name</div></div>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="section-bar">QUOTED BY (FABNET SYSTEMS)</div>
+  <div class="two-col">
+    <div>
+      <div class="field-row"><div class="field-label">Company Name</div><div class="field-value">FabNet Systems</div></div>
+      <div class="field-row"><div class="field-label">Contact Person</div><div class="field-value placeholder">Name, Title</div></div>
+      <div class="field-row"><div class="field-label">Email / Phone</div><div class="field-value placeholder">Email / Phone</div></div>
+      <div class="field-row"><div class="field-label">Supplier / Vendor Code</div><div class="field-value placeholder">If assigned by buyer</div></div>
+    </div>
+    <div></div>
+  </div>
+
+  <div class="section-bar">LINE ITEM DETAILS</div>
+  <table class="items">
+    <thead>
+      <tr>
+        <th class="num">Ln</th>
+        <th>Part No. / Drawing Rev</th>
+        <th>Description</th>
+        <th class="num">Qty</th>
+        <th class="num">UOM</th>
+        <th class="money">Unit Price</th>
+        <th class="money">Ext. Price</th>
+        <th class="num">Lead Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">1</td><td class="placeholder">Part No / Rev</td><td class="placeholder">Item description / material / spec</td><td class="num placeholder">Qty</td><td class="num placeholder">EA/Kg/Set</td><td class="money placeholder">0.00</td><td class="money placeholder">0.00</td><td class="num placeholder">__ wks</td></tr>
+      <tr><td class="num">2</td><td class="placeholder">Part No / Rev</td><td class="placeholder">Item description / material / spec</td><td class="num placeholder">Qty</td><td class="num placeholder">EA/Kg/Set</td><td class="money placeholder">0.00</td><td class="money placeholder">0.00</td><td class="num placeholder">__ wks</td></tr>
+      <tr><td class="num">3</td><td class="placeholder">Part No / Rev</td><td class="placeholder">Item description / material / spec</td><td class="num placeholder">Qty</td><td class="num placeholder">EA/Kg/Set</td><td class="money placeholder">0.00</td><td class="money placeholder">0.00</td><td class="num placeholder">__ wks</td></tr>
+      <tr><td class="num">4</td><td class="placeholder">Part No / Rev</td><td class="placeholder">Item description / material / spec</td><td class="num placeholder">Qty</td><td class="num placeholder">EA/Kg/Set</td><td class="money placeholder">0.00</td><td class="money placeholder">0.00</td><td class="num placeholder">__ wks</td></tr>
+      <tr><td class="num">5</td><td class="placeholder">Part No / Rev</td><td class="placeholder">Item description / material / spec</td><td class="num placeholder">Qty</td><td class="num placeholder">EA/Kg/Set</td><td class="money placeholder">0.00</td><td class="money placeholder">0.00</td><td class="num placeholder">__ wks</td></tr>
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <div><span>Subtotal</span><span class="placeholder">0.00</span></div>
+    <div><span>Tax / VAT (__%)</span><span class="placeholder">0.00</span></div>
+    <div><span>Freight / Packing (if applicable)</span><span class="placeholder">0.00</span></div>
+    <div class="grand"><span>Total Quoted Value</span><span>0.00</span></div>
+  </div>
+
+  <div class="section-bar">COMMERCIAL &amp; COMPLIANCE TERMS</div>
+  <table class="terms">
+    <tr><td class="label">Minimum Order Qty (MOQ)</td><td class="placeholder">If applicable</td></tr>
+    <tr><td class="label">Tooling / NRE Cost (if any)</td><td class="placeholder">0.00, one-time / amortized</td></tr>
+    <tr><td class="label">Warranty</td><td class="placeholder">__ months from delivery / acceptance</td></tr>
+    <tr><td class="label">Quality Certification</td><td class="placeholder">AS9100 / ISO 9001 / NADCAP – certificate ref</td></tr>
+    <tr><td class="label">Material Traceability</td><td class="placeholder">Certs of conformance / mill certs required: Y/N</td></tr>
+    <tr><td class="label">ITAR / Export Control Status</td><td class="placeholder">ITAR / EAR / Non-controlled – state applicability</td></tr>
+    <tr><td class="label">Country of Origin</td><td class="placeholder">Country</td></tr>
+    <tr><td class="label">Packaging Standard</td><td class="placeholder">e.g. per buyer spec / standard export packing</td></tr>
+    <tr><td class="label">Delivery Location (Incoterm point)</td><td class="placeholder">Named place</td></tr>
+  </table>
+
+  <div class="section-bar">NOTES, ASSUMPTIONS &amp; EXCLUSIONS</div>
+  <div class="notes-box placeholder">
+    List any assumptions made in pricing, items excluded from scope, conditions on RFQ drawings/specs, or clarifications requested from buyer.
+  </div>
+
+  <div class="section-bar">AUTHORIZATION</div>
+  <div class="auth-grid">
+    <div>
+      <span class="sig-label">Prepared By</span>
+      <div class="sig-line">Name / Title / Signature / Date</div>
+    </div>
+    <div>
+      <span class="sig-label">Approved By</span>
+      <div class="sig-line">Name / Title / Signature / Date</div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    This quotation is issued subject to FabNet Systems' standard terms and conditions and the buyer's RFQ terms where not superseded above.
+  </div>
+
+</body>
+</html>

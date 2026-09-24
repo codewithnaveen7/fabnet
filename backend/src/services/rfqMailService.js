@@ -274,8 +274,78 @@ async function sendSupplierQuoteNotification({ rfq, quote, supplierEmail }) {
   }
 }
 
+function buildClientQuotationHtml({ rfq, model, toName }) {
+  const greeting = escapeHtml(toName || 'there');
+  return `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#0f172a;line-height:1.5;">
+      <p>Hello ${greeting},</p>
+      <p>Please find attached FabNet Systems quotation <strong>${escapeHtml(
+        model.quotationNo
+      )}</strong> in response to RFQ <strong>${escapeHtml(rfq.rfqNumber)}</strong>.</p>
+      ${section(
+        'Quotation summary',
+        [
+          row('RFQ number', display(rfq.rfqNumber)),
+          row('RFQ title', display(rfq.title)),
+          row('Quotation no.', display(model.quotationNo)),
+          row('Currency', display(model.currency)),
+          row('Total quoted value', display(formatMoneyDisplay(model.total, model.currency))),
+          row('Validity of offer', display(model.validity)),
+        ].join('')
+      )}
+      <p style="margin-top:24px;">This quotation is issued subject to FabNet Systems' standard terms and conditions.</p>
+      <p>Regards,<br/>FabNet Systems</p>
+    </div>
+  `.trim();
+}
+
+function formatMoneyDisplay(value, currency = 'USD') {
+  const n = Number(value);
+  const amount = Number.isFinite(n)
+    ? n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : '0.00';
+  return `${currency} ${amount}`;
+}
+
+/**
+ * Email the client-facing quotation PDF after admin selects a winner per category.
+ */
+async function sendClientQuotationEmail({ rfq, toEmail, model, pdfBuffer, fileName }) {
+  if (!config.mail.isConfigured) {
+    logger.warn('Client quotation mail skipped: Azure mail env is not configured');
+    return { sent: false, reason: 'mail_not_configured' };
+  }
+
+  const toName = rfq.clientContactPerson || rfq.clientProjectName || 'there';
+
+  await sendMail({
+    tenantId: config.mail.tenantId,
+    clientId: config.mail.clientId,
+    clientSecret: config.mail.clientSecret,
+    fromEmail: config.mail.fromEmail,
+    toEmail,
+    subject: `Quotation ${model.quotationNo} — ${rfq.rfqNumber}: ${rfq.title}`,
+    body: buildClientQuotationHtml({ rfq, model, toName }),
+    bodyType: 'HTML',
+    attachments: [
+      {
+        name: fileName,
+        contentType: 'application/pdf',
+        contentBytes: pdfBuffer,
+      },
+    ],
+  });
+
+  logger.info(
+    { rfqId: rfq.id, toEmail, rfqNumber: rfq.rfqNumber, quotationNo: model.quotationNo },
+    'Client quotation email sent'
+  );
+  return { sent: true, toEmail, fileName, quotationNo: model.quotationNo };
+}
+
 module.exports = {
   sendRfqInviteEmails,
   sendSupplierQuoteNotification,
+  sendClientQuotationEmail,
   buildRfqInviteHtml,
 };

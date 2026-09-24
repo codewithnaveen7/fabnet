@@ -324,6 +324,19 @@
   flex-wrap: wrap;
 }
 
+.fn-send-client-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin: -0.5rem 0 1.5rem;
+  padding: 0.9rem 1rem;
+  background: #fff;
+  border: 1px solid var(--fn-border);
+  border-radius: var(--fn-radius);
+  box-shadow: var(--fn-shadow);
+}
+
 .fn-bulk-upload-panel {
   margin-bottom: 1.5rem;
 }
@@ -1126,6 +1139,23 @@
 
 .fn-quote-status .pi {
   font-size: 0.95rem;
+}
+
+.fn-quotation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.fn-quotation-email {
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.fn-quotation-email .p-inputtext {
+  width: 100%;
 }
 
 .fn-quote-list {

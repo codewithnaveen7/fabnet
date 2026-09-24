@@ -4,10 +4,12 @@ import { useSelector } from "react-redux";
 import {
   KButton,
   KInputNumber,
+  KInputText,
   KProgressSpinner,
   KTag,
+  confirmDialog,
 } from "kdesigns/KDesign";
-import { useMutationPost, useQueryGet } from "kdesigns/KHooks";
+import { useMutationPost, useQueryGet, useToast } from "kdesigns/KHooks";
 import { useQueryClient } from "@tanstack/react-query";
 import "kdesigns/kDesignStyle";
 import FormSection from "../components/FormSection";
@@ -67,6 +69,8 @@ function quoteKey(supplierId, serviceId) {
   return `${supplierId}::${serviceId}`;
 }
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function ViewRfqPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -78,6 +82,9 @@ export default function ViewRfqPage() {
   const [priceDrafts, setPriceDrafts] = useState({});
   const [savingKey, setSavingKey] = useState(null);
   const [awardingKey, setAwardingKey] = useState(null);
+  const [clientEmailDraft, setClientEmailDraft] = useState("");
+  const [sendingQuote, setSendingQuote] = useState(false);
+  const toast = useToast();
 
   const { postData: deleteRfq } = useMutationPost({
     mutationKey: ["fabnet-rfq-delete"],
@@ -90,6 +97,9 @@ export default function ViewRfqPage() {
   });
   const { postData: setAward } = useMutationPost({
     mutationKey: ["fabnet-rfq-set-award"],
+  });
+  const { postData: sendQuotation } = useMutationPost({
+    mutationKey: ["fabnet-rfq-send-quotation"],
   });
 
   const { data: rfq, isLoading } = useQueryGet({
@@ -130,6 +140,10 @@ export default function ViewRfqPage() {
     setPriceDrafts(next);
   }, [rfq]);
 
+  useEffect(() => {
+    setClientEmailDraft(rfq?.clientEmail || "");
+  }, [rfq]);
+
   const processNames = useMemo(
     () => processServices.map((s) => s.name).filter(Boolean).join(", ") || "—",
     [processServices]
@@ -154,6 +168,11 @@ export default function ViewRfqPage() {
     }
     return map;
   }, [rfq]);
+
+  const allCategoriesAwarded = useMemo(() => {
+    if (!processServices.length) return false;
+    return processServices.every((service) => Boolean(awardByService[service.id]));
+  }, [processServices, awardByService]);
 
   const adminRowsForActiveService = useMemo(() => {
     if (!isAdmin || !rfq || !activeServiceId) return [];
@@ -258,6 +277,51 @@ export default function ViewRfqPage() {
     }
   };
 
+  const sendQuotationToClient = async (email) => {
+    setSendingQuote(true);
+    try {
+      const result = await sendQuotation(
+        { rfqId: id, clientEmail: email },
+        "FABNET_SEND_RFQ_QUOTATION",
+        "/rfqs/send-quotation",
+        { timeout: 60000 }
+      );
+      const mail = unwrapApiData(result);
+      if (mail?.sent) {
+        toast.success(`Quotation sent to ${mail.toEmail}`);
+      }
+      await invalidateRfq();
+    } finally {
+      setSendingQuote(false);
+    }
+  };
+
+  const handleSendQuotation = () => {
+    const email = clientEmailDraft.trim();
+    if (!email) {
+      toast.error("Fill the client email first");
+      return;
+    }
+    if (!EMAIL_PATTERN.test(email)) {
+      toast.error("Enter a valid client email");
+      return;
+    }
+    if (!allCategoriesAwarded) {
+      toast.error("Select a supplier for every category first");
+      return;
+    }
+    confirmDialog({
+      header: "Send RFQ doc to client",
+      message: `Send the quotation PDF to ${email}?`,
+      icon: "pi pi-envelope",
+      acceptLabel: "Send",
+      rejectLabel: "Cancel",
+      accept: () => {
+        sendQuotationToClient(email);
+      },
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-content-center py-5">
@@ -323,6 +387,30 @@ export default function ViewRfqPage() {
         </div>
       </div>
 
+      {isAdmin ? (
+        <div className="fn-send-client-bar">
+          <div className="fn-quotation-email">
+            <label className="fn-field-label" htmlFor="client-quote-email">
+              Client email
+            </label>
+            <KInputText
+              id="client-quote-email"
+              type="email"
+              value={clientEmailDraft}
+              onChange={(e) => setClientEmailDraft(e.target.value)}
+              placeholder="Optional — required to send"
+            />
+          </div>
+          <KButton
+            type="button"
+            label="Send RFQ doc to client"
+            icon="pi pi-send"
+            loading={sendingQuote}
+            onClick={handleSendQuotation}
+          />
+        </div>
+      ) : null}
+
       <div className="fn-saas-form">
         <FormSection icon="pi pi-file" title="RFQ header" description="Identity and key dates.">
           <div className="fn-form-grid">
@@ -335,6 +423,13 @@ export default function ViewRfqPage() {
             </Detail>
             <Detail label="Title">{rfq.title}</Detail>
             <Detail label="Client / project">{rfq.clientProjectName}</Detail>
+            {isAdmin ? (
+              <>
+                <Detail label="Client contact">{rfq.clientContactPerson || "—"}</Detail>
+                <Detail label="Client email">{rfq.clientEmail || "—"}</Detail>
+                <Detail label="Client phone">{rfq.clientPhone || "—"}</Detail>
+              </>
+            ) : null}
             <Detail label="Requested by">
               {rfq.requestedBy?.name || rfq.requestedBy?.email || "—"}
             </Detail>

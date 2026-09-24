@@ -38,6 +38,9 @@ import "../styles/dashboard.css";
 const defaultValues = {
   title: "",
   clientProjectName: "",
+  clientEmail: "",
+  clientContactPerson: "",
+  clientPhone: "",
   quoteDueDate: null,
   requiredDeliveryDate: null,
   partName: "",
@@ -82,6 +85,9 @@ function rfqToFormValues(rfq) {
   return {
     title: rfq.title || "",
     clientProjectName: rfq.clientProjectName || "",
+    clientEmail: rfq.clientEmail || "",
+    clientContactPerson: rfq.clientContactPerson || "",
+    clientPhone: rfq.clientPhone || "",
     quoteDueDate: toDateOrNull(rfq.quoteDueDate),
     requiredDeliveryDate: toDateOrNull(rfq.requiredDeliveryDate),
     partName: rfq.partName || "",
@@ -311,6 +317,9 @@ export default function RfqEditorPage({ mode = "create" }) {
         toleranceNotes: values.toleranceNotes || null,
         countryOfOriginRestriction: values.countryOfOriginRestriction || null,
         paymentTerms: values.paymentTerms || null,
+        clientEmail: values.clientEmail || null,
+        clientContactPerson: values.clientContactPerson || null,
+        clientPhone: values.clientPhone || null,
         targetBudgetaryPrice:
           values.targetBudgetaryPrice === "" || values.targetBudgetaryPrice == null
             ? null
@@ -451,6 +460,46 @@ export default function RfqEditorPage({ mode = "create" }) {
               render={(field, fieldState) => (
                 <KInputText
                   id="clientProjectName"
+                  {...field}
+                  className={fieldClassName(fieldState)}
+                />
+              )}
+            />
+            <ValidatedField
+              name="clientContactPerson"
+              control={control}
+              label="Client contact person"
+              htmlFor="clientContactPerson"
+              render={(field, fieldState) => (
+                <KInputText
+                  id="clientContactPerson"
+                  {...field}
+                  className={fieldClassName(fieldState)}
+                />
+              )}
+            />
+            <ValidatedField
+              name="clientEmail"
+              control={control}
+              label="Client email"
+              htmlFor="clientEmail"
+              render={(field, fieldState) => (
+                <KInputText
+                  id="clientEmail"
+                  type="email"
+                  {...field}
+                  className={fieldClassName(fieldState)}
+                />
+              )}
+            />
+            <ValidatedField
+              name="clientPhone"
+              control={control}
+              label="Client phone"
+              htmlFor="clientPhone"
+              render={(field, fieldState) => (
+                <KInputText
+                  id="clientPhone"
                   {...field}
                   className={fieldClassName(fieldState)}
                 />

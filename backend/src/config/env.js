@@ -56,4 +56,14 @@ config.mail.isConfigured = Boolean(
     config.mail.fromEmail
 );
 
+config.company = {
+  name: process.env.FABNET_COMPANY_NAME || 'FabNet Systems',
+  address: process.env.FABNET_COMPANY_ADDRESS || '',
+  phone: process.env.FABNET_COMPANY_PHONE || '',
+  email: process.env.FROM_EMAIL || 'info@fabnetsystems.com',
+  website: process.env.FABNET_WEBSITE || 'www.fabnetsystems.com',
+  contactName: process.env.FABNET_CONTACT_NAME || 'Sales Team',
+  quoteValidityDays: Number(process.env.FABNET_QUOTE_VALIDITY_DAYS || 30),
+};
+
 module.exports = config;
